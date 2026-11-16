@@ -3,33 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RAMMS J.A.R.V.I.S. SPATIAL OS v12.1 | Instant-Boot 3D Studio</title>
+  <title>RAMMS GROUPS // QUANTUM 5D SPATIAL OS</title>
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#02050E">
+  <meta name="theme-color" content="#03060C">
 
-  <!-- Pinned Fast CDN for MediaPipe Hands Vision Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js" crossorigin="anonymous"></script>
+  <!-- Fast Pinned MediaPipe Hands Engine -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
 
   <style>
     :root {
-      --bg-void: #02050E;
-      --hud-bg: rgba(5, 13, 26, 0.82);
-      --hud-border: rgba(0, 240, 255, 0.3);
-      --cyan: #00F0FF;
-      --gold: #FFB800;
-      --emerald: #05FFA1;
-      --rose: #FF2A6D;
-      --violet: #B537F2;
-      --text-main: #E0F7FA;
-      --text-dim: #7F9EB2;
+      --bg-void: #03060C;
+      --glass-panel: rgba(7, 13, 24, 0.88);
+      --glass-border: rgba(56, 189, 248, 0.25);
+      --cyan: #38BDF8;
+      --gold: #F59E0B;
+      --emerald: #10B981;
+      --crimson: #F43F5E;
+      --violet: #A855F7;
+      --text-primary: #F8FAFC;
+      --text-muted: #94A3B8;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -39,22 +38,22 @@
       height: 100dvh;
       overflow: hidden;
       background-color: var(--bg-void);
-      color: var(--text-main);
+      color: var(--text-primary);
     }
 
-    #spatialStage {
+    #viewport {
       position: relative;
       width: 100vw;
       height: 100dvh;
       overflow: hidden;
-      background: #02050E;
+      background: radial-gradient(circle at 50% 45%, #091529 0%, #03060C 100%);
     }
 
-    #rawVideo {
+    #webcamFeed {
       display: none;
     }
 
-    canvas.gpu-layer {
+    canvas.render-layer {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -62,244 +61,258 @@
       display: block;
     }
 
-    #camLayer  { z-index: 1; }
-    #holoLayer { z-index: 2; }
-    #fxLayer   { z-index: 3; pointer-events: none; }
+    #bgCanvas   { z-index: 1; }
+    #holoCanvas { z-index: 2; }
+    #drawCanvas { z-index: 3; }
+    #fxCanvas   { z-index: 4; pointer-events: none; }
 
-    .bracket {
+    /* Aerospace HUD Frame */
+    .telemetry-border {
       position: absolute;
-      width: 22px;
-      height: 22px;
-      border-color: var(--cyan);
-      border-style: solid;
-      z-index: 12;
+      inset: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.14);
+      border-radius: 14px;
       pointer-events: none;
-      opacity: 0.65;
+      z-index: 12;
     }
-    .b-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
-    .b-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
-    .b-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
-    .b-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
 
-    .top-hud {
+    /* Top Executive Command Strip */
+    .top-strip {
       position: absolute;
       top: 12px;
       left: 14px;
       right: 14px;
-      z-index: 20;
+      z-index: 25;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 8px;
-      background: var(--hud-bg);
-      border: 1px solid var(--hud-border);
-      padding: 8px 14px;
+      background: var(--glass-panel);
+      border: 1px solid var(--glass-border);
+      padding: 9px 16px;
       border-radius: 10px;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(10px);
     }
 
-    .brand-wrap {
+    .brand-section {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .core-dot {
-      width: 12px;
-      height: 12px;
+    .status-pulse {
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--cyan);
       box-shadow: 0 0 12px var(--cyan);
     }
 
-    .sys-title {
+    .org-title {
       font-size: 12px;
       font-weight: 900;
-      letter-spacing: 1.4px;
+      letter-spacing: 1.5px;
+      color: var(--text-primary);
+    }
+
+    .org-title span {
       color: var(--cyan);
     }
 
-    .sys-sub {
+    .org-sub {
       font-size: 9px;
       color: var(--gold);
-      letter-spacing: 0.8px;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
 
-    .status-group {
+    .telemetry-pills {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex-wrap: wrap;
     }
 
-    .badge {
+    .pill {
       font-size: 10px;
       font-weight: 800;
-      padding: 4px 9px;
+      padding: 4px 10px;
       border-radius: 5px;
-      background: rgba(0, 240, 255, 0.1);
-      border: 1px solid rgba(0, 240, 255, 0.3);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
       color: var(--cyan);
+      letter-spacing: 0.6px;
     }
 
-    .badge.gold {
-      background: rgba(255, 184, 0, 0.14);
-      border-color: var(--gold);
+    .pill.gold {
+      background: rgba(245, 158, 11, 0.14);
+      border-color: rgba(245, 158, 11, 0.4);
       color: var(--gold);
     }
 
-    .badge.emerald {
-      background: rgba(5, 255, 161, 0.14);
-      border-color: var(--emerald);
+    .pill.green {
+      background: rgba(16, 185, 129, 0.14);
+      border-color: rgba(16, 185, 129, 0.4);
       color: var(--emerald);
     }
 
-    #gestureToast {
+    /* Mid-Air Notification Banner */
+    #airToast {
       position: absolute;
-      top: 66px;
+      top: 64px;
       left: 50%;
-      transform: translateX(-50%) scale(0.9);
-      z-index: 25;
-      background: rgba(5, 13, 26, 0.92);
-      border: 1px solid var(--gold);
-      color: var(--gold);
+      transform: translateX(-50%) translateY(-8px);
+      z-index: 30;
+      background: rgba(7, 13, 24, 0.94);
+      border: 1px solid var(--cyan);
+      color: var(--text-primary);
       padding: 6px 18px;
       border-radius: 99px;
       font-size: 11px;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 1.2px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
-      box-shadow: 0 0 20px rgba(255, 184, 0, 0.3);
+      transition: opacity 0.18s ease, transform 0.18s ease;
     }
 
-    #gestureToast.show {
+    #airToast.visible {
       opacity: 1;
-      transform: translateX(-50%) scale(1);
+      transform: translateX(-50%) translateY(0);
     }
 
-    .color-strip {
+    /* Left Plasma Ink Dock */
+    .left-dock {
       position: absolute;
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 20;
+      z-index: 25;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      background: var(--hud-bg);
-      border: 1px solid var(--hud-border);
-      padding: 9px 7px;
+      background: var(--glass-panel);
+      border: 1px solid var(--glass-border);
+      padding: 10px 8px;
       border-radius: 12px;
     }
 
-    .orb {
+    .color-dot {
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.2);
       cursor: pointer;
       transition: transform 0.15s;
     }
 
-    .orb.active {
+    .color-dot.active {
       transform: scale(1.25);
       border-color: #FFF;
       box-shadow: 0 0 12px currentColor;
     }
 
-    .item-strip {
+    /* Right 5D Hyper-Projection Dock */
+    .right-dock {
       position: absolute;
       right: 14px;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 20;
+      z-index: 25;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      background: var(--hud-bg);
-      border: 1px solid var(--hud-border);
-      padding: 9px 7px;
+      background: var(--glass-panel);
+      border: 1px solid var(--glass-border);
+      padding: 10px 8px;
       border-radius: 12px;
     }
 
-    .item-btn {
+    .dock-caption {
+      font-size: 8px;
+      font-weight: 900;
+      color: var(--gold);
+      text-align: center;
+      letter-spacing: 0.8px;
+      margin-bottom: 2px;
+    }
+
+    .holo-btn {
       padding: 6px 8px;
       border-radius: 6px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 240, 255, 0.2);
-      color: var(--text-dim);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(56, 189, 248, 0.18);
+      color: var(--text-muted);
       font-size: 9px;
       font-weight: 800;
       cursor: pointer;
       text-align: center;
     }
 
-    .item-btn.active {
-      background: rgba(0, 240, 255, 0.22);
+    .holo-btn.active {
+      background: rgba(56, 189, 248, 0.22);
       border-color: var(--cyan);
       color: #FFF;
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
     }
 
-    .bottom-hud {
+    /* Bottom Touch-Free Bar */
+    .bottom-strip {
       position: absolute;
       bottom: 12px;
       left: 14px;
       right: 14px;
-      z-index: 20;
+      z-index: 25;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 8px;
-      background: var(--hud-bg);
-      border: 1px solid var(--hud-border);
+      background: var(--glass-panel);
+      border: 1px solid var(--glass-border);
       padding: 8px 14px;
       border-radius: 10px;
     }
 
-    .gesture-bar {
+    .gesture-hints {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
       font-size: 10px;
-      color: var(--text-dim);
+      color: var(--text-muted);
     }
 
-    .gesture-bar strong {
+    .gesture-hints strong {
       color: var(--cyan);
     }
 
-    .quick-actions {
+    .ctrl-btns {
       display: flex;
       gap: 6px;
     }
 
-    .mini-btn {
-      padding: 6px 10px;
+    .cmd-btn {
+      padding: 6px 11px;
       border-radius: 6px;
       font-size: 9px;
       font-weight: 800;
-      background: rgba(0, 240, 255, 0.12);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      color: var(--text-main);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--text-primary);
       cursor: pointer;
     }
 
-    .mini-btn.danger {
-      border-color: var(--rose);
-      color: var(--rose);
-      background: rgba(255, 42, 109, 0.14);
+    .cmd-btn.danger {
+      border-color: rgba(244, 63, 94, 0.45);
+      color: var(--crimson);
+      background: rgba(244, 63, 94, 0.12);
     }
 
-    #bootSplash {
+    /* Executive Presentation Splash Screen (NO HANGING "PLEASE WAIT") */
+    #introScreen {
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: radial-gradient(circle at center, #081A30 0%, #02050E 100%);
+      background: radial-gradient(circle at center, #0B172A 0%, #03060C 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -308,373 +321,457 @@
       padding: 24px;
     }
 
-    .splash-tag {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2px;
+    .presenter-badge {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2.5px;
       color: var(--gold);
-      border: 1px solid rgba(255, 184, 0, 0.4);
-      padding: 4px 14px;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.08);
+      padding: 6px 16px;
       border-radius: 99px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
-    .splash-h1 {
-      font-size: 26px;
+    .main-heading {
+      font-size: clamp(24px, 4vw, 38px);
       font-weight: 900;
       letter-spacing: 2px;
-      color: var(--cyan);
-      margin-bottom: 10px;
+      color: var(--text-primary);
+      margin-bottom: 8px;
     }
 
-    .splash-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      max-width: 680px;
-      width: 100%;
+    .main-heading span {
+      color: var(--cyan);
+    }
+
+    .sub-heading {
+      max-width: 560px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
       margin-bottom: 24px;
+    }
+
+    .feature-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+      max-width: 720px;
+      width: 100%;
+      margin-bottom: 28px;
       text-align: left;
     }
 
-    .g-card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(0, 240, 255, 0.2);
-      border-radius: 8px;
-      padding: 10px 12px;
+    .f-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 10px;
+      padding: 12px;
       font-size: 11px;
-      color: var(--text-dim);
+      color: var(--text-muted);
     }
 
-    .g-card strong {
+    .f-box strong {
       display: block;
       color: var(--cyan);
-      margin-bottom: 2px;
+      font-size: 11px;
+      margin-bottom: 3px;
     }
 
-    .launch-btn {
-      padding: 15px 34px;
+    .engage-btn {
+      padding: 16px 38px;
       border-radius: 10px;
       font-size: 13px;
       font-weight: 900;
-      letter-spacing: 1.5px;
-      background: linear-gradient(135deg, #00B4D8, #0077B6);
+      letter-spacing: 1.8px;
+      background: linear-gradient(135deg, #0284C7, #2563EB);
       color: #FFF;
       border: 1px solid var(--cyan);
-      box-shadow: 0 0 28px rgba(0, 240, 255, 0.45);
+      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.35);
       cursor: pointer;
     }
 
+    .engage-btn:active {
+      transform: scale(0.97);
+    }
+
     @media (max-width: 680px) {
-      .gesture-bar { display: none; }
-      .color-strip { left: 8px; }
-      .item-strip { right: 8px; }
+      .gesture-hints { display: none; }
+      .left-dock { left: 8px; }
+      .right-dock { right: 8px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- BOOT OVERLAY WITH GESTURE MANUAL -->
-  <div id="bootSplash">
-    <div class="splash-tag">RAMMS GROUPS // MARK-85 SPATIAL ENGINE</div>
-    <h1 class="splash-h1">J.A.R.V.I.S. TOUCH-FREE 3D OS</h1>
-    <div class="splash-grid">
-      <div class="g-card"><strong>☝️ 1 FINGER</strong>Silky Laser Drawing (Invisible Hand)</div>
-      <div class="g-card"><strong>✌️ 2 FINGERS + SWIPE</strong>Hover &amp; Switch Laser Color</div>
-      <div class="g-card"><strong>🤟 3 FINGERS UP</strong>Cycle 8 Built-in 3D Holograms</div>
-      <div class="g-card"><strong>🙌 2 HANDS / ✊ FIST</strong>3D Zoom-Rotate / Hold Fist to Clear</div>
+  <!-- EXECUTIVE PRESENTATION SPLASH -->
+  <div id="introScreen">
+    <div class="presenter-badge">RAMMS GROUPS PRESENTS</div>
+    <h1 class="main-heading">QUANTUM <span>5D</span> SPATIAL STUDIO</h1>
+    <p class="sub-heading">
+      Next-Generation Touch-Free Gesture Interface combining 5-Dimensional Hyper-Projections with High-Precision Laser Air-Drawing.
+    </p>
+
+    <div class="feature-matrix">
+      <div class="f-box"><strong>☝️ 1 FINGER UP</strong>Smooth Standard Laser Drawing</div>
+      <div class="f-box"><strong>✌️ 2 FINGERS + SWIPE</strong>Hover &amp; Switch Beam Color</div>
+      <div class="f-box"><strong>🤟 3 FINGERS UP</strong>Cycle 8 Quantum 5D Models</div>
+      <div class="f-box"><strong>🙌 2 HANDS / ✊ FIST</strong>5D Zoom-Rotate / Hold Fist Clear</div>
     </div>
-    <button id="btnStart" class="launch-btn" onclick="bootSystem()">INITIALIZING AI ENGINE...</button>
+
+    <button id="btnLaunch" class="engage-btn" onclick="launchSpatialOS()">LAUNCH 5D WORKSPACE</button>
   </div>
 
-  <!-- MAIN VIEWPORT -->
-  <div id="spatialStage">
-    <video id="rawVideo" playsinline></video>
+  <!-- MAIN 5D VIEWPORT -->
+  <div id="viewport">
+    <video id="webcamFeed" playsinline muted></video>
 
-    <canvas id="camLayer" class="gpu-layer"></canvas>
-    <canvas id="holoLayer" class="gpu-layer"></canvas>
-    <canvas id="fxLayer" class="gpu-layer"></canvas>
+    <canvas id="bgCanvas" class="render-layer"></canvas>
+    <canvas id="holoCanvas" class="render-layer"></canvas>
+    <canvas id="drawCanvas" class="render-layer"></canvas>
+    <canvas id="fxCanvas" class="render-layer"></canvas>
 
-    <div class="bracket b-tl"></div>
-    <div class="bracket b-tr"></div>
-    <div class="bracket b-bl"></div>
-    <div class="bracket b-br"></div>
+    <div class="telemetry-border"></div>
+    <div id="airToast">BEAM: ELECTRIC CYAN</div>
 
-    <div id="gestureToast">COLOR: ARC CYAN</div>
-
-    <!-- TOP HUD -->
-    <header class="top-hud">
-      <div class="brand-wrap">
-        <div class="core-dot" id="coreLed"></div>
+    <!-- TOP COMMAND BAR -->
+    <header class="top-strip">
+      <div class="brand-section">
+        <div class="status-pulse" id="ledDot"></div>
         <div>
-          <div class="sys-title">J.A.R.V.I.S. SPATIAL OS v12.1</div>
-          <div id="telemetryTxt" class="sys-sub">TOUCH-FREE GESTURE CONTROL ACTIVE</div>
+          <div class="org-title"><span>RAMMS GROUPS</span> // QUANTUM 5D OS</div>
+          <div id="subTelemetry" class="org-sub">5D HYPER-SPACE &amp; PRECISION LASER ACTIVE</div>
         </div>
       </div>
 
-      <div class="status-group">
-        <span id="modeBadge" class="badge emerald">SCANNING</span>
-        <span id="itemBadge" class="badge gold">3D: FREE</span>
-        <span id="fpsBadge" class="badge">60 FPS</span>
+      <div class="telemetry-pills">
+        <span id="statePill" class="pill green">READY</span>
+        <span id="modelPill" class="pill gold">5D: NONE</span>
+        <span id="fpsPill" class="pill">60 FPS</span>
       </div>
     </header>
 
-    <!-- LEFT COLOR DOCK -->
-    <aside class="color-strip" id="colorDock">
-      <div class="orb active" style="background:#00F0FF; color:#00F0FF;" onclick="selectColorIndex(0)"></div>
-      <div class="orb" style="background:#FFB800; color:#FFB800;" onclick="selectColorIndex(1)"></div>
-      <div class="orb" style="background:#05FFA1; color:#05FFA1;" onclick="selectColorIndex(2)"></div>
-      <div class="orb" style="background:#FF2A6D; color:#FF2A6D;" onclick="selectColorIndex(3)"></div>
-      <div class="orb" style="background:#B537F2; color:#B537F2;" onclick="selectColorIndex(4)"></div>
-      <div class="orb" style="background:#FFFFFF; color:#FFFFFF;" onclick="selectColorIndex(5)"></div>
+    <!-- LEFT COLOR PALETTE -->
+    <aside class="left-dock" id="colorPalette">
+      <div class="color-dot active" style="background:#38BDF8; color:#38BDF8;" onclick="setColorIdx(0)"></div>
+      <div class="color-dot" style="background:#F59E0B; color:#F59E0B;" onclick="setColorIdx(1)"></div>
+      <div class="color-dot" style="background:#10B981; color:#10B981;" onclick="setColorIdx(2)"></div>
+      <div class="color-dot" style="background:#F43F5E; color:#F43F5E;" onclick="setColorIdx(3)"></div>
+      <div class="color-dot" style="background:#A855F7; color:#A855F7;" onclick="setColorIdx(4)"></div>
+      <div class="color-dot" style="background:#FFFFFF; color:#FFFFFF;" onclick="setColorIdx(5)"></div>
     </aside>
 
-    <!-- RIGHT 3D HOLOGRAM ITEMS DOCK -->
-    <aside class="item-strip" id="itemDock">
-      <button class="item-btn active" onclick="selectModelIndex(0)">FREE 3D</button>
-      <button class="item-btn" onclick="selectModelIndex(1)">ARC CORE</button>
-      <button class="item-btn" onclick="selectModelIndex(2)">DNA HELIX</button>
-      <button class="item-btn" onclick="selectModelIndex(3)">TESSERACT</button>
-      <button class="item-btn" onclick="selectModelIndex(4)">PYRAMID</button>
-      <button class="item-btn" onclick="selectModelIndex(5)">GALAXY</button>
-      <button class="item-btn" onclick="selectModelIndex(6)">SPHERE</button>
-      <button class="item-btn" onclick="selectModelIndex(7)">TORUS</button>
+    <!-- RIGHT 5D HYPER-OBJECTS DOCK -->
+    <aside class="right-dock" id="modelDock">
+      <div class="dock-caption">5D ITEMS</div>
+      <button class="holo-btn active" onclick="setModelIdx(0)">DRAW ONLY</button>
+      <button class="holo-btn" onclick="setModelIdx(1)">5D HYPERCUBE</button>
+      <button class="holo-btn" onclick="setModelIdx(2)">5D VORTEX</button>
+      <button class="holo-btn" onclick="setModelIdx(3)">5D QUANTUM</button>
+      <button class="holo-btn" onclick="setModelIdx(4)">5D HELIX</button>
+      <button class="holo-btn" onclick="setModelIdx(5)">5D TORUS</button>
+      <button class="holo-btn" onclick="setModelIdx(6)">5D MATRIX</button>
+      <button class="holo-btn" onclick="setModelIdx(7)">5D NEBULA</button>
     </aside>
 
-    <!-- BOTTOM GESTURE GUIDE -->
-    <footer class="bottom-hud">
-      <div class="gesture-bar">
-        <span>☝️ <strong>1 FINGER:</strong> DRAW</span>
+    <!-- BOTTOM GESTURE LEGEND -->
+    <footer class="bottom-strip">
+      <div class="gesture-hints">
+        <span>☝️ <strong>1 FINGER:</strong> NORMAL DRAW</span>
         <span>✌️ <strong>2 FINGERS SWIPE:</strong> COLOR</span>
-        <span>🤟 <strong>3 FINGERS:</strong> 3D ITEM</span>
-        <span>🙌 <strong>2 HANDS:</strong> ZOOM/ROTATE</span>
+        <span>🤟 <strong>3 FINGERS:</strong> 5D MODEL</span>
+        <span>🙌 <strong>2 HANDS:</strong> 5D ROTATE/ZOOM</span>
         <span>🖐️ <strong>PALM:</strong> ERASE</span>
-        <span>✊ <strong>HOLD FIST:</strong> CLEAR</span>
+        <span>✊ <strong>FIST:</strong> CLEAR</span>
       </div>
-      <div class="quick-actions">
-        <button class="mini-btn" onclick="toggleCameraVisibility()">CAM: ON</button>
-        <button class="mini-btn" onclick="undoStroke()">UNDO</button>
-        <button class="mini-btn danger" onclick="purgeAll()">CLEAR</button>
+
+      <div class="ctrl-btns">
+        <button class="cmd-btn" onclick="toggleCamBg()">CAM: ON</button>
+        <button class="cmd-btn" onclick="undoLastStroke()">UNDO</button>
+        <button class="cmd-btn danger" onclick="clearEverything()">CLEAR</button>
       </div>
     </footer>
   </div>
 
 <script>
-  const videoEl = document.getElementById('rawVideo');
-  const camCanvas = document.getElementById('camLayer');
-  const camCtx = camCanvas.getContext('2d', { alpha: false });
+  /**
+   * RAMMS GROUPS // QUANTUM 5D SPATIAL OS
+   * Engineering Architecture:
+   * 1. Zero-Deadlock Instant Boot: Opens camera directly and runs MediaPipe Hands with strict
+   *    frame-lock throttling (`aiBusy` flag) so Samsung Galaxy Tab A8 never drops below smooth FPS.
+   * 2. Standard 2D/3D Smooth Laser Drawing: User's hand-drawn lines stay clean, readable, and
+   *    anti-aliased without 5D distortion—ideal for writing text or diagrams on stage.
+   * 3. True 5D Hyper-Projection Engine (X, Y, Z + 4th Dim W + 5th Dim V): Projects 5-dimensional
+   *    coordinates into 3D and then onto 2D screen space for mesmerizing inside-out hyper-rotations.
+   */
 
-  const holoCanvas = document.getElementById('holoLayer');
-  const hCtx = holoCanvas.getContext('2d');
+  const videoEl    = document.getElementById('webcamFeed');
+  const bgCanvas   = document.getElementById('bgCanvas');
+  const bgCtx      = bgCanvas.getContext('2d', { alpha: false });
+  const holoCanvas = document.getElementById('holoCanvas');
+  const hCtx       = holoCanvas.getContext('2d');
+  const drawCanvas = document.getElementById('drawCanvas');
+  const dCtx       = drawCanvas.getContext('2d');
+  const fxCanvas   = document.getElementById('fxCanvas');
+  const fCtx       = fxCanvas.getContext('2d');
 
-  const fxCanvas = document.getElementById('fxLayer');
-  const fCtx = fxCanvas.getContext('2d');
-
-  const modeBadge = document.getElementById('modeBadge');
-  const itemBadge = document.getElementById('itemBadge');
-  const fpsBadge = document.getElementById('fpsBadge');
-  const telemetryTxt = document.getElementById('telemetryTxt');
-  const gestureToast = document.getElementById('gestureToast');
+  const statePill    = document.getElementById('statePill');
+  const modelPill    = document.getElementById('modelPill');
+  const fpsPill      = document.getElementById('fpsPill');
+  const subTelemetry = document.getElementById('subTelemetry');
+  const airToast     = document.getElementById('airToast');
 
   let W = window.innerWidth;
   let H = window.innerHeight;
 
-  function resizeLayers() {
+  function resizeCanvases() {
     W = window.innerWidth;
     H = window.innerHeight;
-    [camCanvas, holoCanvas, fxCanvas].forEach(c => {
+
+    // Save existing normal drawing layer before resize
+    const savedDraw = document.createElement('canvas');
+    savedDraw.width = drawCanvas.width || W;
+    savedDraw.height = drawCanvas.height || H;
+    if (drawCanvas.width > 0) savedDraw.getContext('2d').drawImage(drawCanvas, 0, 0);
+
+    [bgCanvas, holoCanvas, drawCanvas, fxCanvas].forEach(c => {
       c.width = W;
       c.height = H;
     });
-  }
-  window.addEventListener('resize', resizeLayers);
-  resizeLayers();
 
-  const COLORS = [
-    { name: 'ARC CYAN', hex: '#00F0FF' },
-    { name: 'STARK GOLD', hex: '#FFB800' },
-    { name: 'PLASMA EMERALD', hex: '#05FFA1' },
-    { name: 'CRIMSON LASER', hex: '#FF2A6D' },
-    { name: 'QUANTUM VIOLET', hex: '#B537F2' },
+    dCtx.drawImage(savedDraw, 0, 0, W, H);
+  }
+  window.addEventListener('resize', resizeCanvases);
+  resizeCanvases();
+
+  const PALETTE = [
+    { name: 'ELECTRIC CYAN', hex: '#38BDF8' },
+    { name: 'SOLAR GOLD', hex: '#F59E0B' },
+    { name: 'QUANTUM EMERALD', hex: '#10B981' },
+    { name: 'LASER CRIMSON', hex: '#F43F5E' },
+    { name: 'HYPER VIOLET', hex: '#A855F7' },
     { name: 'PURE TITANIUM', hex: '#FFFFFF' }
   ];
 
-  const MODELS_3D = [
-    'FREE 3D',
-    'ARC CORE',
-    'DNA HELIX',
-    'TESSERACT',
-    'PYRAMID',
-    'GALAXY',
-    'SPHERE',
-    'TORUS'
+  const MODELS_5D = [
+    'DRAW ONLY',
+    '5D HYPERCUBE',
+    '5D VORTEX',
+    '5D QUANTUM',
+    '5D HELIX',
+    '5D TORUS',
+    '5D MATRIX',
+    '5D NEBULA'
   ];
 
-  let colorIdx = 0;
-  let modelIdx = 0;
-  let showCamera = true;
+  let activeColorIdx = 0;
+  let activeModelIdx = 0;
+  let camVisible = true;
 
-  let rotX = 0.22;
-  let rotY = 0;
-  let holoScale = 1.0;
-  let autoRotate = true;
+  // 5D Rotation & Scale Angles (X, Y, Z + 4D W + 5D V)
+  let angleXY = 0;
+  let angleXZ = 0.3;
+  let angle4W = 0;
+  let angle5V = 0;
+  let holoZoom = 1.0;
+  let autoSpin5D = true;
 
-  let lastPinchDist = null;
-  let lastMidX = null;
-  let lastMidY = null;
+  // Two-hand pinch/rotate state
+  let prevPinchDist = null;
+  let prevHandsMidX = null;
+  let prevHandsMidY = null;
 
-  let strokes3D = [];
-  let activeStroke = null;
-
+  // Normal Smooth Drawing History & Active Path
+  let undoSnapshots = [];
+  let isDrawingNow = false;
   let smoothX = null;
   let smoothY = null;
-  let prevSmoothX = null;
-  let prevSmoothY = null;
+  let lastDrawX = null;
+  let lastDrawY = null;
 
-  let swipeStartX = null;
-  let lastColorSwitchTime = 0;
-  let threeFingerTriggered = false;
-  let fistHoldStart = 0;
-  let fistProgress = 0;
+  // Touch-Free Gesture Triggers
+  let swipeAnchorX = null;
+  let lastColorTime = 0;
+  let threeFingerLock = false;
+  let fistStartMs = 0;
+  let fistCharge = 0;
 
-  let currentCursor = null;
-  let sparks = [];
+  let cursorState = null;
+  let particles = [];
 
-  let toastTimer = null;
-  function showToast(msg) {
-    gestureToast.innerText = msg;
-    gestureToast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => gestureToast.classList.remove('show'), 1300);
+  let toastTimeout = null;
+  function notifyAir(label) {
+    airToast.innerText = label;
+    airToast.classList.add('visible');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => airToast.classList.remove('visible'), 1200);
   }
 
-  function selectColorIndex(idx) {
-    colorIdx = (idx + COLORS.length) % COLORS.length;
-    const orbs = document.querySelectorAll('#colorDock .orb');
-    orbs.forEach((o, i) => o.classList.toggle('active', i === colorIdx));
-    document.getElementById('coreLed').style.background = COLORS[colorIdx].hex;
-    document.getElementById('coreLed').style.boxShadow = `0 0 12px ${COLORS[colorIdx].hex}`;
-    showToast(`BEAM: ${COLORS[colorIdx].name}`);
+  function setColorIdx(idx) {
+    activeColorIdx = (idx + PALETTE.length) % PALETTE.length;
+    document.querySelectorAll('#colorPalette .color-dot').forEach((el, i) => {
+      el.classList.toggle('active', i === activeColorIdx);
+    });
+    const hex = PALETTE[activeColorIdx].hex;
+    document.getElementById('ledDot').style.background = hex;
+    document.getElementById('ledDot').style.boxShadow = `0 0 12px ${hex}`;
+    notifyAir(`LASER BEAM: ${PALETTE[activeColorIdx].name}`);
   }
 
-  function selectModelIndex(idx) {
-    modelIdx = (idx + MODELS_3D.length) % MODELS_3D.length;
-    const btns = document.querySelectorAll('#itemDock .item-btn');
-    btns.forEach((b, i) => b.classList.toggle('active', i === modelIdx));
-    itemBadge.innerText = `3D: ${MODELS_3D[modelIdx]}`;
-    showToast(`HOLOGRAM: ${MODELS_3D[modelIdx]}`);
+  function setModelIdx(idx) {
+    activeModelIdx = (idx + MODELS_5D.length) % MODELS_5D.length;
+    document.querySelectorAll('#modelDock .holo-btn').forEach((el, i) => {
+      el.classList.toggle('active', i === activeModelIdx);
+    });
+    modelPill.innerText = `5D: ${MODELS_5D[activeModelIdx]}`;
+    notifyAir(`PROJECTION: ${MODELS_5D[activeModelIdx]}`);
   }
 
-  function toggleCameraVisibility() {
-    showCamera = !showCamera;
-    event.target.innerText = showCamera ? 'CAM: ON' : 'CAM: OFF';
+  function toggleCamBg() {
+    camVisible = !camVisible;
+    event.target.innerText = camVisible ? 'CAM: ON' : 'CAM: OFF';
   }
 
-  function undoStroke() {
-    strokes3D.pop();
-    showToast('UNDO LAST STROKE');
+  function saveSnapshot() {
+    if (undoSnapshots.length > 15) undoSnapshots.shift();
+    undoSnapshots.push(dCtx.getImageData(0, 0, W, H));
   }
 
-  function purgeAll() {
-    strokes3D = [];
-    activeStroke = null;
-    holoScale = 1.0;
-    rotX = 0.22;
-    rotY = 0;
-    showToast('SPATIAL FIELD PURGED');
-  }
-
-  function project3D(px, py, pz) {
-    const cosY = Math.cos(rotY);
-    const sinY = Math.sin(rotY);
-    const x1 = px * cosY - pz * sinY;
-    const z1 = pz * cosY + px * sinY;
-
-    const cosX = Math.cos(rotX);
-    const sinX = Math.sin(rotX);
-    const y2 = py * cosX - z1 * sinX;
-    const z2 = z1 * cosX + py * sinX;
-
-    const fov = 680;
-    const scale = (fov / (fov + z2 + 260)) * holoScale;
-
-    return {
-      x: W / 2 + x1 * scale,
-      y: H / 2 + y2 * scale,
-      z: z2
-    };
-  }
-
-  function unprojectTo3D(sx, sy) {
-    const dx = (sx - W / 2) / holoScale;
-    const dy = (sy - H / 2) / holoScale;
-
-    const cosX = Math.cos(-rotX);
-    const sinX = Math.sin(-rotX);
-    const y1 = dy * cosX;
-    const z1 = dy * sinX;
-
-    const cosY = Math.cos(-rotY);
-    const sinY = Math.sin(-rotY);
-    const x2 = dx * cosY - z1 * sinY;
-    const z2 = z1 * cosY + dx * sinY;
-
-    return { x: x2, y: y1, z: z2 };
-  }
-
-  function spawnLaserSparks(x, y, hex) {
-    if (sparks.length > 50) return;
-    for (let i = 0; i < 2; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const v = 1.2 + Math.random() * 2.8;
-      sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1.0, hex });
+  function undoLastStroke() {
+    if (undoSnapshots.length > 0) {
+      dCtx.putImageData(undoSnapshots.pop(), 0, 0);
+      notifyAir('UNDO STROKE');
     }
   }
 
-  function getHandState(lm) {
-    const idxUp = lm[8].y < lm[6].y;
-    const midUp = lm[12].y < lm[10].y;
-    const rngUp = lm[16].y < lm[14].y;
-    const pnkUp = lm[20].y < lm[18].y;
+  function clearEverything() {
+    saveSnapshot();
+    dCtx.clearRect(0, 0, W, H);
+    holoZoom = 1.0;
+    notifyAir('CANVAS CLEARED');
+  }
 
-    const upCount = [idxUp, midUp, rngUp, pnkUp].filter(Boolean).length;
+  // =========================================================================
+  // 5D -> 4D -> 3D -> 2D MATHEMATICAL HYPER-PROJECTION ENGINE
+  // =========================================================================
+  function project5DTo2D(x, y, z, w, v) {
+    // 1. 5th Dimension (V-Axis) Phase Rotation into W & X
+    const cosV = Math.cos(angle5V);
+    const sinV = Math.sin(angle5V);
+    const x5 = x * cosV - v * sinV;
+    const v5 = v * cosV + x * sinV;
+    const w5 = w + v5 * 0.35;
 
-    if (upCount === 0) return 'FIST';
-    if (upCount >= 4) return 'ERASE';
-    if (idxUp && midUp && rngUp && !pnkUp) return 'THREE_FINGER';
-    if (idxUp && midUp && !rngUp) return 'TWO_FINGER';
-    if (idxUp && !midUp && !rngUp) return 'DRAW';
+    // 2. 4th Dimension (W-Axis) Tesseract Rotation into Z
+    const cosW = Math.cos(angle4W);
+    const sinW = Math.sin(angle4W);
+    const z4 = z * cosW - w5 * sinW;
+    const w4 = w5 * cosW + z * sinW;
+
+    // Stereographic 4D-to-3D Perspective Factor
+    const dist4D = 260;
+    const scale4D = dist4D / (dist4D + w4 + 140);
+    let x3 = x5 * scale4D;
+    let y3 = y * scale4D;
+    let z3 = z4 * scale4D;
+
+    // 3. Standard 3D Spatial Rotation (Y and X)
+    const cosY = Math.cos(angleXY);
+    const sinY = Math.sin(angleXY);
+    const rx = x3 * cosY - z3 * sinY;
+    const rz = z3 * cosY + x3 * sinY;
+
+    const cosX = Math.cos(angleXZ);
+    const sinX = Math.sin(angleXZ);
+    const ry = y3 * cosX - rz * sinX;
+    const finalZ = rz * cosX + y3 * sinX;
+
+    // 4. 3D-to-2D Screen Projection
+    const fov = 620;
+    const scale2D = (fov / (fov + finalZ + 250)) * holoZoom;
+
+    return {
+      x: W / 2 + rx * scale2D,
+      y: H / 2 + ry * scale2D,
+      depth: scale4D * scale2D
+    };
+  }
+
+  // Spawn Lightweight Laser Sparks
+  function addSparks(x, y, hex) {
+    if (particles.length > 40) return;
+    for (let i = 0; i < 2; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const spd = 1 + Math.random() * 2.5;
+      particles.push({ x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 1.0, hex });
+    }
+  }
+
+  // Classify Hand Gesture
+  function detectGesture(lm) {
+    const idx = lm[8].y < lm[6].y;
+    const mid = lm[12].y < lm[10].y;
+    const rng = lm[16].y < lm[14].y;
+    const pnk = lm[20].y < lm[18].y;
+    const up = [idx, mid, rng, pnk].filter(Boolean).length;
+
+    if (up === 0) return 'FIST';
+    if (up >= 4) return 'ERASE';
+    if (idx && mid && rng && !pnk) return 'THREE';
+    if (idx && mid && !rng) return 'TWO';
+    if (idx && !mid && !rng) return 'DRAW';
     return 'HOVER';
   }
 
-  function onHandResults(results) {
+  // Draw Normal Smooth Anti-Aliased Laser Stroke onto Persistent 2D Draw Layer
+  function drawSmoothSegment(x1, y1, x2, y2, hex) {
+    dCtx.lineCap = 'round';
+    dCtx.lineJoin = 'round';
+
+    // Outer subtle glow pass
+    dCtx.strokeStyle = hex + '44';
+    dCtx.lineWidth = 11;
+    dCtx.beginPath();
+    dCtx.moveTo(x1, y1);
+    dCtx.lineTo(x2, y2);
+    dCtx.stroke();
+
+    // Crisp inner laser core (clean and readable!)
+    dCtx.strokeStyle = '#FFFFFF';
+    dCtx.lineWidth = 3.5;
+    dCtx.beginPath();
+    dCtx.moveTo(x1, y1);
+    dCtx.lineTo(x2, y2);
+    dCtx.stroke();
+  }
+
+  // AI Hand Callback
+  function handleHandResults(results) {
     const hands = results.multiHandLandmarks || [];
     const now = performance.now();
 
     if (hands.length === 0) {
-      if (activeStroke) {
-        strokes3D.push(activeStroke);
-        activeStroke = null;
-      }
+      isDrawingNow = false;
       smoothX = null;
       smoothY = null;
-      lastPinchDist = null;
-      fistHoldStart = 0;
-      fistProgress = 0;
-      threeFingerTriggered = false;
-      currentCursor = null;
-      autoRotate = true;
-      modeBadge.innerText = 'SCANNING';
+      lastDrawX = null;
+      lastDrawY = null;
+      prevPinchDist = null;
+      fistStartMs = 0;
+      fistCharge = 0;
+      threeFingerLock = false;
+      cursorState = null;
+      autoSpin5D = true;
+      statePill.innerText = 'SCANNING';
       return;
     }
 
+    // TWO HANDS -> 5D Pinch-Zoom & Multi-Dimensional Rotation
     if (hands.length === 2) {
-      if (activeStroke) {
-        strokes3D.push(activeStroke);
-        activeStroke = null;
-      }
-      autoRotate = false;
-      modeBadge.innerText = '3D ZOOM / ROTATE';
+      isDrawingNow = false;
+      autoSpin5D = false;
+      statePill.innerText = '5D CONTROL';
 
       const h1x = (1 - hands[0][9].x) * W;
       const h1y = hands[0][9].y * H;
@@ -685,414 +782,409 @@
       const midX = (h1x + h2x) / 2;
       const midY = (h1y + h2y) / 2;
 
-      if (lastPinchDist !== null) {
-        holoScale = Math.max(0.45, Math.min(2.6, holoScale * (dist / lastPinchDist)));
-        rotY += (midX - lastMidX) * 0.013;
-        rotX += (midY - lastMidY) * 0.013;
+      if (prevPinchDist !== null) {
+        holoZoom = Math.max(0.45, Math.min(2.4, holoZoom * (dist / prevPinchDist)));
+        angleXY += (midX - prevHandsMidX) * 0.012;
+        angle4W += (midY - prevHandsMidY) * 0.014;
       }
 
-      lastPinchDist = dist;
-      lastMidX = midX;
-      lastMidY = midY;
-      currentCursor = { x: midX, y: midY, mode: 'TWO_HAND' };
-      telemetryTxt.innerText = `SCALE: ${holoScale.toFixed(2)}x // ANGLE: ${Math.round((rotY * 180) / Math.PI)}°`;
+      prevPinchDist = dist;
+      prevHandsMidX = midX;
+      prevHandsMidY = midY;
+      cursorState = { x: midX, y: midY, mode: 'TWO_HAND' };
+      subTelemetry.innerText = `5D SCALE: ${holoZoom.toFixed(2)}x // 4D-W PHASE: ${Math.round((angle4W * 180) / Math.PI)}°`;
       return;
     }
 
-    lastPinchDist = null;
+    // SINGLE HAND -> Touch-Free Gestures
+    prevPinchDist = null;
     const lm = hands[0];
-    const rawX = (1 - lm[8].x) * W;
-    const rawY = lm[8].y * H;
+    const rx = (1 - lm[8].x) * W;
+    const ry = lm[8].y * H;
 
     if (smoothX === null) {
-      smoothX = rawX;
-      smoothY = rawY;
-      prevSmoothX = rawX;
-      prevSmoothY = rawY;
+      smoothX = rx;
+      smoothY = ry;
     } else {
-      const speed = Math.hypot(rawX - smoothX, rawY - smoothY);
-      const alpha = speed > 25 ? 0.65 : 0.35;
-      prevSmoothX = smoothX;
-      prevSmoothY = smoothY;
-      smoothX += alpha * (rawX - smoothX);
-      smoothY += alpha * (rawY - smoothY);
+      const delta = Math.hypot(rx - smoothX, ry - smoothY);
+      const alpha = delta > 28 ? 0.68 : 0.38;
+      smoothX += alpha * (rx - smoothX);
+      smoothY += alpha * (ry - smoothY);
     }
 
-    const gesture = getHandState(lm);
-    modeBadge.innerText = gesture;
-    currentCursor = { x: smoothX, y: smoothY, mode: gesture };
+    const gesture = detectGesture(lm);
+    statePill.innerText = gesture;
+    cursorState = { x: smoothX, y: smoothY, mode: gesture };
 
+    // 1. FIST HOLD -> Clear All
     if (gesture === 'FIST') {
-      if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
-      if (fistHoldStart === 0) fistHoldStart = now;
-      fistProgress = Math.min(1, (now - fistHoldStart) / 1100);
-      telemetryTxt.innerText = `HOLD FIST TO PURGE: ${Math.round(fistProgress * 100)}%`;
-      if (fistProgress >= 1) {
-        purgeAll();
-        fistHoldStart = 0;
-        fistProgress = 0;
+      isDrawingNow = false;
+      if (fistStartMs === 0) fistStartMs = now;
+      fistCharge = Math.min(1, (now - fistStartMs) / 1000);
+      if (fistCharge >= 1) {
+        clearEverything();
+        fistStartMs = 0;
+        fistCharge = 0;
       }
       return;
     } else {
-      fistHoldStart = 0;
-      fistProgress = 0;
+      fistStartMs = 0;
+      fistCharge = 0;
     }
 
-    if (gesture === 'THREE_FINGER') {
-      if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
-      if (!threeFingerTriggered) {
-        threeFingerTriggered = true;
-        selectModelIndex(modelIdx + 1);
+    // 2. THREE FINGERS -> Switch 5D Hyper-Model
+    if (gesture === 'THREE') {
+      isDrawingNow = false;
+      if (!threeFingerLock) {
+        threeFingerLock = true;
+        setModelIdx(activeModelIdx + 1);
       }
       return;
     } else {
-      threeFingerTriggered = false;
+      threeFingerLock = false;
     }
 
-    if (gesture === 'TWO_FINGER') {
-      if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
-      autoRotate = true;
-      if (swipeStartX === null) {
-        swipeStartX = smoothX;
-      } else if (now - lastColorSwitchTime > 650) {
-        const dx = smoothX - swipeStartX;
-        if (Math.abs(dx) > 95) {
-          lastColorSwitchTime = now;
-          swipeStartX = smoothX;
-          selectColorIndex(dx > 0 ? colorIdx + 1 : colorIdx - 1);
+    // 3. TWO FINGERS -> Hover + Swipe Left/Right to Switch Color
+    if (gesture === 'TWO') {
+      isDrawingNow = false;
+      autoSpin5D = true;
+      if (swipeAnchorX === null) {
+        swipeAnchorX = smoothX;
+      } else if (now - lastColorTime > 600) {
+        const diffX = smoothX - swipeAnchorX;
+        if (Math.abs(diffX) > 90) {
+          lastColorTime = now;
+          swipeAnchorX = smoothX;
+          setColorIdx(diffX > 0 ? activeColorIdx + 1 : activeColorIdx - 1);
         }
       }
       return;
     } else {
-      swipeStartX = null;
+      swipeAnchorX = null;
     }
 
+    // 4. ONE FINGER -> Normal Smooth Laser Drawing (Clean & Readable!)
     if (gesture === 'DRAW') {
-      autoRotate = false;
-      const curHex = COLORS[colorIdx].hex;
-
-      const midX = (prevSmoothX + smoothX) * 0.5;
-      const midY = (prevSmoothY + smoothY) * 0.5;
-      const ptMid = unprojectTo3D(midX, midY);
-      const ptEnd = unprojectTo3D(smoothX, smoothY);
-
-      if (!activeStroke) {
-        activeStroke = { color: curHex, points: [ptEnd] };
+      const hex = PALETTE[activeColorIdx].hex;
+      if (!isDrawingNow) {
+        saveSnapshot();
+        isDrawingNow = true;
+        lastDrawX = smoothX;
+        lastDrawY = smoothY;
       } else {
-        activeStroke.points.push(ptMid, ptEnd);
+        drawSmoothSegment(lastDrawX, lastDrawY, smoothX, smoothY, hex);
+        lastDrawX = smoothX;
+        lastDrawY = smoothY;
       }
-      spawnLaserSparks(smoothX, smoothY, curHex);
-      telemetryTxt.innerText = `LASER ACTIVE // [${Math.round(smoothX)}, ${Math.round(smoothY)}]`;
+      addSparks(smoothX, smoothY, hex);
+      subTelemetry.innerText = `LASER DRAWING // X:${Math.round(smoothX)} Y:${Math.round(smoothY)}`;
       return;
     }
 
+    // 5. OPEN PALM -> Plasma Eraser
     if (gesture === 'ERASE') {
-      if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
-      const palmX = (1 - lm[9].x) * W;
-      const palmY = lm[9].y * H;
-      currentCursor = { x: palmX, y: palmY, mode: 'ERASE' };
+      isDrawingNow = false;
+      const px = (1 - lm[9].x) * W;
+      const py = lm[9].y * H;
+      cursorState = { x: px, y: py, mode: 'ERASE' };
 
-      strokes3D = strokes3D.filter(st => {
-        return !st.points.some(p => {
-          const proj = project3D(p.x, p.y, p.z);
-          return Math.hypot(proj.x - palmX, proj.y - palmY) < 48;
-        });
-      });
-      telemetryTxt.innerText = 'PLASMA ERASER ENGAGED';
+      dCtx.save();
+      dCtx.globalCompositeOperation = 'destination-out';
+      dCtx.beginPath();
+      dCtx.arc(px, py, 44, 0, Math.PI * 2);
+      dCtx.fill();
+      dCtx.restore();
       return;
     }
 
-    if (activeStroke) {
-      strokes3D.push(activeStroke);
-      activeStroke = null;
-    }
-    autoRotate = true;
+    isDrawingNow = false;
+    autoSpin5D = true;
   }
 
-  let frameCounter = 0;
-  let lastFpsStamp = performance.now();
+  // =========================================================================
+  // 5D HYPER-OBJECTS RENDERER (8 Quantum 5D Geometries)
+  // =========================================================================
+  function render5DProjection(type, hex, timeSec) {
+    hCtx.strokeStyle = hex;
+    hCtx.lineWidth = 1.8;
 
-  function render60FpsLoop(now) {
-    frameCounter++;
-    if (now - lastFpsStamp >= 500) {
-      fpsBadge.innerText = `${Math.round((frameCounter * 1000) / (now - lastFpsStamp))} FPS`;
-      frameCounter = 0;
-      lastFpsStamp = now;
-    }
-
-    camCtx.fillStyle = '#02050E';
-    camCtx.fillRect(0, 0, W, H);
-
-    if (showCamera && videoEl.readyState >= 2) {
-      camCtx.save();
-      camCtx.translate(W, 0);
-      camCtx.scale(-1, 1);
-      camCtx.globalAlpha = 0.45;
-      camCtx.drawImage(videoEl, 0, 0, W, H);
-      camCtx.restore();
-    }
-
-    camCtx.strokeStyle = 'rgba(0, 240, 255, 0.06)';
-    camCtx.lineWidth = 1;
-    camCtx.beginPath();
-    for (let x = 0; x < W; x += 60) { camCtx.moveTo(x, 0); camCtx.lineTo(x, H); }
-    for (let y = 0; y < H; y += 60) { camCtx.moveTo(0, y); camCtx.lineTo(W, y); }
-    camCtx.stroke();
-
-    hCtx.clearRect(0, 0, W, H);
-
-    if (autoRotate && !activeStroke) {
-      rotY += 0.012;
-    }
-
-    const activeModel = MODELS_3D[modelIdx];
-    if (activeModel !== 'FREE 3D') {
-      render3DItem(activeModel, COLORS[colorIdx].hex, now * 0.001);
-    }
-
-    const allStrokes = activeStroke ? [...strokes3D, activeStroke] : strokes3D;
-    for (let s = 0; s < allStrokes.length; s++) {
-      const st = allStrokes[s];
-      const pts = st.points;
-      if (pts.length < 2) continue;
-
-      hCtx.lineCap = 'round';
-      hCtx.lineJoin = 'round';
-
+    if (type === '5D HYPERCUBE') {
+      // 32-Vertex 5D Penteract Hypercube Projection
+      const s = 85;
+      const verts = [];
+      for (let i = 0; i < 32; i++) {
+        verts.push(project5DTo2D(
+          (i & 1) ? s : -s,
+          (i & 2) ? s : -s,
+          (i & 4) ? s : -s,
+          (i & 8) ? s * 0.7 : -s * 0.7,
+          (i & 16) ? s * 0.5 : -s * 0.5
+        ));
+      }
       hCtx.beginPath();
-      let p0 = project3D(pts[0].x, pts[0].y, pts[0].z);
-      hCtx.moveTo(p0.x, p0.y);
-
-      for (let i = 1; i < pts.length - 1; i++) {
-        const pi = project3D(pts[i].x, pts[i].y, pts[i].z);
-        const pNext = project3D(pts[i + 1].x, pts[i + 1].y, pts[i + 1].z);
-        const xc = (pi.x + pNext.x) * 0.5;
-        const yc = (pi.y + pNext.y) * 0.5;
-        hCtx.quadraticCurveTo(pi.x, pi.y, xc, yc);
+      for (let i = 0; i < 32; i++) {
+        for (let bit = 0; bit < 5; bit++) {
+          const j = i ^ (1 << bit);
+          if (i < j) {
+            hCtx.moveTo(verts[i].x, verts[i].y);
+            hCtx.lineTo(verts[j].x, verts[j].y);
+          }
+        }
       }
-      const pLast = project3D(pts[pts.length - 1].x, pts[pts.length - 1].y, pts[pts.length - 1].z);
-      hCtx.lineTo(pLast.x, pLast.y);
-
-      hCtx.strokeStyle = st.color + '4D';
-      hCtx.lineWidth = 14;
       hCtx.stroke();
-
-      hCtx.strokeStyle = '#FFFFFF';
-      hCtx.lineWidth = 3.5;
-      hCtx.stroke();
-    }
-
-    fCtx.clearRect(0, 0, W, H);
-
-    sparks = sparks.filter(sp => sp.life > 0.06);
-    for (let i = 0; i < sparks.length; i++) {
-      const sp = sparks[i];
-      fCtx.fillStyle = sp.hex;
-      fCtx.globalAlpha = sp.life;
-      fCtx.fillRect(sp.x, sp.y, 3, 3);
-      sp.x += sp.vx;
-      sp.y += sp.vy;
-      sp.life *= 0.86;
-    }
-    fCtx.globalAlpha = 1.0;
-
-    if (currentCursor) {
-      const { x, y, mode } = currentCursor;
-      const curHex = COLORS[colorIdx].hex;
-
-      if (mode === 'DRAW') {
-        fCtx.beginPath();
-        fCtx.arc(x, y, 7, 0, Math.PI * 2);
-        fCtx.fillStyle = '#FFFFFF';
-        fCtx.fill();
-
-        fCtx.beginPath();
-        fCtx.arc(x, y, 16, 0, Math.PI * 2);
-        fCtx.strokeStyle = curHex;
-        fCtx.lineWidth = 2.5;
-        fCtx.stroke();
-      } else if (mode === 'ERASE') {
-        fCtx.beginPath();
-        fCtx.arc(x, y, 42, 0, Math.PI * 2);
-        fCtx.strokeStyle = '#FF2A6D';
-        fCtx.lineWidth = 2.5;
-        fCtx.stroke();
-        fCtx.fillStyle = 'rgba(255, 42, 109, 0.14)';
-        fCtx.fill();
-      } else if (mode === 'FIST' && fistProgress > 0) {
-        fCtx.beginPath();
-        fCtx.arc(x, y, 36, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fistProgress);
-        fCtx.strokeStyle = '#FF2A6D';
-        fCtx.lineWidth = 5;
-        fCtx.stroke();
-      } else {
-        fCtx.beginPath();
-        fCtx.arc(x, y, 12, rotY * 2, rotY * 2 + Math.PI * 1.3);
-        fCtx.strokeStyle = curHex;
-        fCtx.lineWidth = 2;
-        fCtx.stroke();
-      }
-    }
-
-    requestAnimationFrame(render60FpsLoop);
-  }
-
-  function render3DItem(type, color, t) {
-    hCtx.strokeStyle = color;
-    hCtx.lineWidth = 2;
-
-    if (type === 'ARC CORE') {
-      for (let r = 0; r < 3; r++) {
+    } else if (type === '5D VORTEX') {
+      for (let ring = 0; ring < 5; ring++) {
         hCtx.beginPath();
-        for (let a = 0; a <= Math.PI * 2 + 0.15; a += 0.18) {
-          const rad = 135 - r * 18;
-          let x = Math.cos(a) * rad;
-          let y = Math.sin(a) * rad;
-          let z = 0;
-          if (r === 1) { z = y * 0.85; y *= 0.35; }
-          if (r === 2) { z = x * 0.85; x *= 0.35; }
-          const p = project3D(x, y, z);
+        for (let a = 0; a <= Math.PI * 2 + 0.15; a += 0.2) {
+          const r = 130 - ring * 18;
+          const p = project5DTo2D(
+            Math.cos(a) * r,
+            Math.sin(a) * r,
+            Math.sin(a * 2 + timeSec) * 40,
+            Math.cos(a + ring) * 65,
+            Math.sin(ring + timeSec) * 55
+          );
           if (a === 0) hCtx.moveTo(p.x, p.y);
           else hCtx.lineTo(p.x, p.y);
         }
         hCtx.stroke();
       }
-    } else if (type === 'DNA HELIX') {
-      for (let i = -9; i <= 9; i++) {
-        const y = i * 17;
-        const ang = i * 0.45 + t * 2;
-        const p1 = project3D(Math.cos(ang) * 85, y, Math.sin(ang) * 85);
-        const p2 = project3D(Math.cos(ang + Math.PI) * 85, y, Math.sin(ang + Math.PI) * 85);
+    } else if (type === '5D QUANTUM') {
+      // 5 Intersecting Hyper-Orbital Shells
+      for (let shell = 0; shell < 5; shell++) {
+        hCtx.beginPath();
+        for (let a = 0; a <= Math.PI * 2 + 0.15; a += 0.18) {
+          const r = 135;
+          const p = project5DTo2D(
+            Math.cos(a + shell) * r,
+            Math.sin(a) * r * Math.cos(shell * 0.6),
+            Math.sin(a + shell) * r * 0.7,
+            Math.cos(a * 2 + shell) * 70,
+            Math.sin(a + timeSec) * 60
+          );
+          if (a === 0) hCtx.moveTo(p.x, p.y);
+          else hCtx.lineTo(p.x, p.y);
+        }
+        hCtx.stroke();
+      }
+    } else if (type === '5D HELIX') {
+      for (let i = -10; i <= 10; i++) {
+        const y = i * 16;
+        const ang = i * 0.42 + timeSec * 2;
+        const p1 = project5DTo2D(Math.cos(ang) * 85, y, Math.sin(ang) * 85, Math.sin(ang) * 50, Math.cos(ang) * 45);
+        const p2 = project5DTo2D(Math.cos(ang + Math.PI) * 85, y, Math.sin(ang + Math.PI) * 85, -Math.sin(ang) * 50, -Math.cos(ang) * 45);
         hCtx.beginPath();
         hCtx.moveTo(p1.x, p1.y);
         hCtx.lineTo(p2.x, p2.y);
         hCtx.stroke();
 
-        hCtx.fillStyle = '#FFB800';
-        hCtx.beginPath(); hCtx.arc(p1.x, p1.y, 4, 0, Math.PI * 2); hCtx.fill();
-        hCtx.beginPath(); hCtx.arc(p2.x, p2.y, 4, 0, Math.PI * 2); hCtx.fill();
+        hCtx.fillStyle = '#F59E0B';
+        hCtx.beginPath(); hCtx.arc(p1.x, p1.y, 3.5, 0, Math.PI * 2); hCtx.fill();
+        hCtx.beginPath(); hCtx.arc(p2.x, p2.y, 3.5, 0, Math.PI * 2); hCtx.fill();
       }
-    } else if (type === 'TESSERACT') {
-      [65, 130].forEach(s => {
-        const v = [[-s,-s,-s],[s,-s,-s],[s,s,-s],[-s,s,-s],[-s,-s,s],[s,-s,s],[s,s,s],[-s,s,s]];
-        const e = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-        const p = v.map(pt => project3D(pt[0], pt[1], pt[2]));
-        hCtx.beginPath();
-        e.forEach(([a, b]) => { hCtx.moveTo(p[a].x, p[a].y); hCtx.lineTo(p[b].x, p[b].y); });
-        hCtx.stroke();
-      });
-    } else if (type === 'PYRAMID') {
-      const s = 135;
-      const v = [[0,-s,0],[-s,s,-s],[s,s,-s],[s,s,s],[-s,s,s]];
-      const e = [[0,1],[0,2],[0,3],[0,4],[1,2],[2,3],[3,4],[4,1]];
-      const p = v.map(pt => project3D(pt[0], pt[1], pt[2]));
-      hCtx.beginPath();
-      e.forEach(([a, b]) => { hCtx.moveTo(p[a].x, p[a].y); hCtx.lineTo(p[b].x, p[b].y); });
-      hCtx.stroke();
-    } else if (type === 'GALAXY') {
-      hCtx.fillStyle = color;
-      for (let i = 0; i < 110; i++) {
-        const r = i * 1.45;
-        const ang = i * 0.35 + t;
-        const p = project3D(Math.cos(ang) * r, (i % 5 - 2) * 4, Math.sin(ang) * r);
-        hCtx.fillRect(p.x, p.y, 3, 3);
-      }
-    } else if (type === 'SPHERE') {
-      for (let lat = -60; lat <= 60; lat += 30) {
-        const rad = Math.cos((lat * Math.PI) / 180) * 130;
-        const y = Math.sin((lat * Math.PI) / 180) * 130;
-        hCtx.beginPath();
-        for (let a = 0; a <= Math.PI * 2 + 0.2; a += 0.25) {
-          const p = project3D(Math.cos(a) * rad, y, Math.sin(a) * rad);
-          if (a === 0) hCtx.moveTo(p.x, p.y);
-          else hCtx.lineTo(p.x, p.y);
-        }
-        hCtx.stroke();
-      }
-    } else if (type === 'TORUS') {
-      const R = 105, r = 42;
+    } else if (type === '5D TORUS') {
+      const R = 100, r = 40;
       for (let u = 0; u < Math.PI * 2; u += 0.35) {
         hCtx.beginPath();
-        for (let v = 0; v <= Math.PI * 2 + 0.3; v += 0.4) {
-          const x = (R + r * Math.cos(v)) * Math.cos(u);
-          const y = r * Math.sin(v);
-          const z = (R + r * Math.cos(v)) * Math.sin(u);
-          const p = project3D(x, y, z);
+        for (let v = 0; v <= Math.PI * 2 + 0.3; v += 0.38) {
+          const p = project5DTo2D(
+            (R + r * Math.cos(v)) * Math.cos(u),
+            r * Math.sin(v),
+            (R + r * Math.cos(v)) * Math.sin(u),
+            Math.sin(u + v) * 55,
+            Math.cos(u - v) * 45
+          );
           if (v === 0) hCtx.moveTo(p.x, p.y);
           else hCtx.lineTo(p.x, p.y);
         }
         hCtx.stroke();
       }
+    } else if (type === '5D MATRIX') {
+      hCtx.fillStyle = hex;
+      for (let x = -2; x <= 2; x++) {
+        for (let y = -2; y <= 2; y++) {
+          for (let z = -1; z <= 1; z++) {
+            const p = project5DTo2D(x * 48, y * 48, z * 48, Math.sin(timeSec + x) * 60, Math.cos(timeSec + y) * 50);
+            hCtx.fillRect(p.x - 2, p.y - 2, 4, 4);
+          }
+        }
+      }
+    } else if (type === '5D NEBULA') {
+      hCtx.fillStyle = hex;
+      for (let i = 0; i < 120; i++) {
+        const r = i * 1.3;
+        const a = i * 0.38 + timeSec;
+        const p = project5DTo2D(
+          Math.cos(a) * r,
+          Math.sin(i * 0.3) * 35,
+          Math.sin(a) * r,
+          Math.cos(i * 0.2 + timeSec) * 70,
+          Math.sin(i * 0.25) * 60
+        );
+        hCtx.fillRect(p.x, p.y, 3, 3);
+      }
     }
   }
 
-  // INSTANT PRE-LOAD & SHADER WARM-UP ENGINE
-  let handsEngine = null;
-  let aiReady = false;
+  // =========================================================================
+  // HIGH-SPEED 60FPS RENDER LOOP (Decoupled from Camera AI Inference)
+  // =========================================================================
+  let fpsCount = 0;
+  let fpsTimer = performance.now();
 
-  async function preloadAIModel() {
-    const btn = document.getElementById('btnStart');
-    btn.innerText = 'LOADING AI VISION (PLEASE WAIT)...';
+  function mainRenderLoop(now) {
+    fpsCount++;
+    if (now - fpsTimer >= 500) {
+      fpsPill.innerText = `${Math.round((fpsCount * 1000) / (now - fpsTimer))} FPS`;
+      fpsCount = 0;
+      fpsTimer = now;
+    }
+
+    // 1. Background Video + Grid
+    bgCtx.fillStyle = '#03060C';
+    bgCtx.fillRect(0, 0, W, H);
+
+    if (camVisible && videoEl.readyState >= 2) {
+      bgCtx.save();
+      bgCtx.translate(W, 0);
+      bgCtx.scale(-1, 1);
+      bgCtx.globalAlpha = 0.48;
+      bgCtx.drawImage(videoEl, 0, 0, W, H);
+      bgCtx.restore();
+    }
+
+    bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
+    bgCtx.lineWidth = 1;
+    bgCtx.beginPath();
+    for (let x = 0; x < W; x += 65) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, H); }
+    for (let y = 0; y < H; y += 65) { bgCtx.moveTo(0, y); bgCtx.lineTo(W, y); }
+    bgCtx.stroke();
+
+    // 2. 5D Hyper-Hologram Layer
+    hCtx.clearRect(0, 0, W, H);
+    if (autoSpin5D) {
+      angleXY += 0.011;
+      angle4W += 0.014;
+      angle5V += 0.009;
+    }
+
+    const current5DModel = MODELS_5D[activeModelIdx];
+    if (current5DModel !== 'DRAW ONLY') {
+      render5DProjection(current5DModel, PALETTE[activeColorIdx].hex, now * 0.001);
+    }
+
+    // 3. Laser Tip Cursor & Sparks (Zero Hand Skeleton Lines!)
+    fCtx.clearRect(0, 0, W, H);
+
+    particles = particles.filter(p => p.life > 0.08);
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      fCtx.fillStyle = p.hex;
+      fCtx.globalAlpha = p.life;
+      fCtx.fillRect(p.x, p.y, 3, 3);
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life *= 0.85;
+    }
+    fCtx.globalAlpha = 1.0;
+
+    if (cursorState) {
+      const { x, y, mode } = cursorState;
+      const hex = PALETTE[activeColorIdx].hex;
+
+      if (mode === 'DRAW') {
+        fCtx.beginPath();
+        fCtx.arc(x, y, 6, 0, Math.PI * 2);
+        fCtx.fillStyle = '#FFFFFF';
+        fCtx.fill();
+
+        fCtx.beginPath();
+        fCtx.arc(x, y, 14, 0, Math.PI * 2);
+        fCtx.strokeStyle = hex;
+        fCtx.lineWidth = 2;
+        fCtx.stroke();
+      } else if (mode === 'ERASE') {
+        fCtx.beginPath();
+        fCtx.arc(x, y, 44, 0, Math.PI * 2);
+        fCtx.strokeStyle = '#F43F5E';
+        fCtx.lineWidth = 2.5;
+        fCtx.stroke();
+        fCtx.fillStyle = 'rgba(244, 63, 94, 0.14)';
+        fCtx.fill();
+      } else if (mode === 'FIST' && fistCharge > 0) {
+        fCtx.beginPath();
+        fCtx.arc(x, y, 36, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fistCharge);
+        fCtx.strokeStyle = '#F43F5E';
+        fCtx.lineWidth = 5;
+        fCtx.stroke();
+      } else {
+        fCtx.beginPath();
+        fCtx.arc(x, y, 11, angleXY * 2, angleXY * 2 + Math.PI * 1.3);
+        fCtx.strokeStyle = hex;
+        fCtx.lineWidth = 2;
+        fCtx.stroke();
+      }
+    }
+
+    requestAnimationFrame(mainRenderLoop);
+  }
+
+  // =========================================================================
+  // INSTANT ZERO-DEADLOCK CAMERA & FRAME-LOCKED AI LOOP
+  // =========================================================================
+  async function launchSpatialOS() {
+    const btn = document.getElementById('btnLaunch');
+    btn.innerText = 'CONNECTING OPTICAL SENSOR...';
     btn.disabled = true;
 
     try {
-      handsEngine = new Hands({
+      // 1. Open Front Camera Immediately via Native getUserMedia
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
+          width: { ideal: 480 },
+          height: { ideal: 270 }
+        },
+        audio: false
+      });
+
+      videoEl.srcObject = stream;
+      await videoEl.play();
+
+      // Hide intro screen immediately so user sees live camera at 60 FPS!
+      document.getElementById('introScreen').style.display = 'none';
+      requestAnimationFrame(mainRenderLoop);
+
+      // 2. Initialize MediaPipe Hands with Frame-Lock Throttling (Prevents 7-10 FPS lag!)
+      const hands = new Hands({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
       });
 
-      handsEngine.setOptions({
+      hands.setOptions({
         maxNumHands: 2,
         modelComplexity: 0,
         minDetectionConfidence: 0.60,
         minTrackingConfidence: 0.55
       });
 
-      handsEngine.onResults(onHandResults);
+      hands.onResults(handleHandResults);
 
-      // Warm-up dummy frame to compile GPU shaders BEFORE camera opens
-      const dummyCanvas = document.createElement('canvas');
-      dummyCanvas.width = 64;
-      dummyCanvas.height = 64;
-      await handsEngine.send({ image: dummyCanvas });
+      let aiProcessing = false;
+      async function pumpVideoFrame() {
+        if (!aiProcessing && videoEl.readyState >= 2) {
+          aiProcessing = true;
+          try {
+            await hands.send({ image: videoEl });
+          } catch (err) {}
+          aiProcessing = false;
+        }
+        setTimeout(pumpVideoFrame, 16); // Strict frame-locked cadence
+      }
+      pumpVideoFrame();
 
-      aiReady = true;
-      btn.innerText = 'ACTIVATE SPATIAL ENGINE (READY ✔)';
-      btn.disabled = false;
-      btn.style.background = 'linear-gradient(135deg, #059669, #10B981)';
     } catch (err) {
-      btn.innerText = 'NETWORK SLOW - TAP TO RETRY';
-      btn.disabled = false;
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', preloadAIModel);
-
-  async function bootSystem() {
-    if (!aiReady) {
-      await preloadAIModel();
-    }
-
-    const btn = document.getElementById('btnStart');
-    btn.innerText = 'STARTING CAMERA...';
-    btn.disabled = true;
-
-    try {
-      const camera = new Camera(videoEl, {
-        onFrame: async () => {
-          if (handsEngine) {
-            await handsEngine.send({ image: videoEl });
-          }
-        },
-        width: 320,
-        height: 180
-      });
-
-      await camera.start();
-      document.getElementById('bootSplash').style.display = 'none';
-      requestAnimationFrame(render60FpsLoop);
-    } catch (e) {
-      alert('Camera permission denied. Please allow camera access in Chrome.');
-      btn.innerText = 'RETRY CAMERA';
+      alert('Camera access required. Please open over HTTPS and allow camera permissions.');
+      btn.innerText = 'RETRY LAUNCH';
       btn.disabled = false;
     }
   }
