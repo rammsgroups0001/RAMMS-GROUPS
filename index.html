@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RAMMS J.A.R.V.I.S. SPATIAL OS v12.0 | Touch-Free 3D Hologram Studio</title>
+  <title>RAMMS J.A.R.V.I.S. SPATIAL OS v12.1 | Instant-Boot 3D Studio</title>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#02050E">
 
-  <!-- MediaPipe Hands Vision Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <!-- Pinned Fast CDN for MediaPipe Hands Vision Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
 
   <style>
     :root {
       --bg-void: #02050E;
-      --hud-bg: rgba(5, 13, 26, 0.78);
-      --hud-border: rgba(0, 240, 255, 0.28);
+      --hud-bg: rgba(5, 13, 26, 0.82);
+      --hud-border: rgba(0, 240, 255, 0.3);
       --cyan: #00F0FF;
       --gold: #FFB800;
       --emerald: #05FFA1;
@@ -66,7 +66,6 @@
     #holoLayer { z-index: 2; }
     #fxLayer   { z-index: 3; pointer-events: none; }
 
-    /* Minimal Corner Brackets */
     .bracket {
       position: absolute;
       width: 22px;
@@ -82,7 +81,6 @@
     .b-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
     .b-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
 
-    /* Top Minimal Telemetry Strip */
     .top-hud {
       position: absolute;
       top: 12px;
@@ -157,14 +155,13 @@
       color: var(--emerald);
     }
 
-    /* Floating Gesture Toast (Shows when you switch color/item in mid-air!) */
     #gestureToast {
       position: absolute;
       top: 66px;
       left: 50%;
       transform: translateX(-50%) scale(0.9);
       z-index: 25;
-      background: rgba(5, 13, 26, 0.9);
+      background: rgba(5, 13, 26, 0.92);
       border: 1px solid var(--gold);
       color: var(--gold);
       padding: 6px 18px;
@@ -183,7 +180,6 @@
       transform: translateX(-50%) scale(1);
     }
 
-    /* Compact Left Color Indicator (Touch-Free or Tap) */
     .color-strip {
       position: absolute;
       left: 14px;
@@ -214,7 +210,6 @@
       box-shadow: 0 0 12px currentColor;
     }
 
-    /* Compact Right 3D Items Dock */
     .item-strip {
       position: absolute;
       right: 14px;
@@ -249,7 +244,6 @@
       box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
     }
 
-    /* Bottom Touch-Free Gesture Cheat-Sheet */
     .bottom-hud {
       position: absolute;
       bottom: 12px;
@@ -301,7 +295,6 @@
       background: rgba(255, 42, 109, 0.14);
     }
 
-    /* Boot Splash */
     #bootSplash {
       position: fixed;
       inset: 0;
@@ -391,7 +384,7 @@
       <div class="g-card"><strong>🤟 3 FINGERS UP</strong>Cycle 8 Built-in 3D Holograms</div>
       <div class="g-card"><strong>🙌 2 HANDS / ✊ FIST</strong>3D Zoom-Rotate / Hold Fist to Clear</div>
     </div>
-    <button id="btnStart" class="launch-btn" onclick="bootSystem()">ACTIVATE SPATIAL ENGINE</button>
+    <button id="btnStart" class="launch-btn" onclick="bootSystem()">INITIALIZING AI ENGINE...</button>
   </div>
 
   <!-- MAIN VIEWPORT -->
@@ -414,7 +407,7 @@
       <div class="brand-wrap">
         <div class="core-dot" id="coreLed"></div>
         <div>
-          <div class="sys-title">J.A.R.V.I.S. SPATIAL OS v12.0</div>
+          <div class="sys-title">J.A.R.V.I.S. SPATIAL OS v12.1</div>
           <div id="telemetryTxt" class="sys-sub">TOUCH-FREE GESTURE CONTROL ACTIVE</div>
         </div>
       </div>
@@ -428,15 +421,15 @@
 
     <!-- LEFT COLOR DOCK -->
     <aside class="color-strip" id="colorDock">
-      <div class="orb active" data-name="ARC CYAN" style="background:#00F0FF; color:#00F0FF;" onclick="selectColorIndex(0)"></div>
-      <div class="orb" data-name="STARK GOLD" style="background:#FFB800; color:#FFB800;" onclick="selectColorIndex(1)"></div>
-      <div class="orb" data-name="PLASMA EMERALD" style="background:#05FFA1; color:#05FFA1;" onclick="selectColorIndex(2)"></div>
-      <div class="orb" data-name="CRIMSON LASER" style="background:#FF2A6D; color:#FF2A6D;" onclick="selectColorIndex(3)"></div>
-      <div class="orb" data-name="QUANTUM VIOLET" style="background:#B537F2; color:#B537F2;" onclick="selectColorIndex(4)"></div>
-      <div class="orb" data-name="PURE TITANIUM" style="background:#FFFFFF; color:#FFFFFF;" onclick="selectColorIndex(5)"></div>
+      <div class="orb active" style="background:#00F0FF; color:#00F0FF;" onclick="selectColorIndex(0)"></div>
+      <div class="orb" style="background:#FFB800; color:#FFB800;" onclick="selectColorIndex(1)"></div>
+      <div class="orb" style="background:#05FFA1; color:#05FFA1;" onclick="selectColorIndex(2)"></div>
+      <div class="orb" style="background:#FF2A6D; color:#FF2A6D;" onclick="selectColorIndex(3)"></div>
+      <div class="orb" style="background:#B537F2; color:#B537F2;" onclick="selectColorIndex(4)"></div>
+      <div class="orb" style="background:#FFFFFF; color:#FFFFFF;" onclick="selectColorIndex(5)"></div>
     </aside>
 
-    <!-- RIGHT 3D HOLOGRAM ITEMS DOCK (8 Rich 3D Items) -->
+    <!-- RIGHT 3D HOLOGRAM ITEMS DOCK -->
     <aside class="item-strip" id="itemDock">
       <button class="item-btn active" onclick="selectModelIndex(0)">FREE 3D</button>
       <button class="item-btn" onclick="selectModelIndex(1)">ARC CORE</button>
@@ -467,22 +460,6 @@
   </div>
 
 <script>
-  /**
-   * RAMMS J.A.R.V.I.S. SPATIAL OS v12.0 — ZERO-LAG DECOUPLED 60FPS ENGINE
-   * Key Architecture Upgrades:
-   * 1. Decoupled 60FPS Render Loop: Graphics & 3D rotation run at full 60FPS independently of
-   *    camera AI inference speed—eliminating the 10 FPS choppiness on Samsung Galaxy Tab A8.
-   * 2. Invisible Hand Mode: Zero hand skeleton lines drawn on screen—only a pure laser reticle
-   *    at the fingertip so it looks like a real Iron Man holographic projector.
-   * 3. Touch-Free Air Gesture Controls:
-   *    - 1 Finger Up: Silky Catmull-Rom Spline Laser Drawing
-   *    - 2 Fingers Up + Horizontal Swipe: Switch Laser Color in mid-air
-   *    - 3 Fingers Up: Cycle through 8 3D Holographic Items
-   *    - 2 Hands: Pinch-to-Zoom & 360° 3D Rotation
-   *    - Open Palm (5 Fingers): Plasma Eraser
-   *    - Closed Fist (Hold 1.2s): Full Canvas Purge with Radial Charge Ring
-   */
-
   const videoEl = document.getElementById('rawVideo');
   const camCanvas = document.getElementById('camLayer');
   const camCtx = camCanvas.getContext('2d', { alpha: false });
@@ -513,7 +490,6 @@
   window.addEventListener('resize', resizeLayers);
   resizeLayers();
 
-  // Palette & 3D Items Catalog
   const COLORS = [
     { name: 'ARC CYAN', hex: '#00F0FF' },
     { name: 'STARK GOLD', hex: '#FFB800' },
@@ -538,39 +514,32 @@
   let modelIdx = 0;
   let showCamera = true;
 
-  // 3D Transform State
   let rotX = 0.22;
   let rotY = 0;
   let holoScale = 1.0;
   let autoRotate = true;
 
-  // Two-Hand Manipulation Tracking
   let lastPinchDist = null;
   let lastMidX = null;
   let lastMidY = null;
 
-  // 3D Strokes Storage
   let strokes3D = [];
   let activeStroke = null;
 
-  // Predictive Smoothing Filter for Silky Curves
   let smoothX = null;
   let smoothY = null;
   let prevSmoothX = null;
   let prevSmoothY = null;
 
-  // Touch-Free Gesture Switch Cooldowns
   let swipeStartX = null;
   let lastColorSwitchTime = 0;
   let threeFingerTriggered = false;
   let fistHoldStart = 0;
   let fistProgress = 0;
 
-  // Current Hand State for 60FPS FX Layer
-  let currentCursor = null; // { x, y, mode }
+  let currentCursor = null;
   let sparks = [];
 
-  // Toast Helper
   let toastTimer = null;
   function showToast(msg) {
     gestureToast.innerText = msg;
@@ -615,7 +584,6 @@
     showToast('SPATIAL FIELD PURGED');
   }
 
-  // 3D Projection Math
   function project3D(px, py, pz) {
     const cosY = Math.cos(rotY);
     const sinY = Math.sin(rotY);
@@ -654,7 +622,6 @@
     return { x: x2, y: y1, z: z2 };
   }
 
-  // Spawn Lightweight Laser Sparks
   function spawnLaserSparks(x, y, hex) {
     if (sparks.length > 50) return;
     for (let i = 0; i < 2; i++) {
@@ -664,7 +631,6 @@
     }
   }
 
-  // Classify Hand Gesture
   function getHandState(lm) {
     const idxUp = lm[8].y < lm[6].y;
     const midUp = lm[12].y < lm[10].y;
@@ -681,7 +647,6 @@
     return 'HOVER';
   }
 
-  // AI Hand Results Callback (Updates State Only — Never Blocks 60FPS Render!)
   function onHandResults(results) {
     const hands = results.multiHandLandmarks || [];
     const now = performance.now();
@@ -703,7 +668,6 @@
       return;
     }
 
-    // 1. TWO-HAND 3D ZOOM & 360 ROTATION
     if (hands.length === 2) {
       if (activeStroke) {
         strokes3D.push(activeStroke);
@@ -735,13 +699,11 @@
       return;
     }
 
-    // 2. SINGLE-HAND TOUCH-FREE CONTROLS
     lastPinchDist = null;
     const lm = hands[0];
     const rawX = (1 - lm[8].x) * W;
     const rawY = lm[8].y * H;
 
-    // Adaptive Smoothing (Fast when moving fast, ultra-steady when drawing curves)
     if (smoothX === null) {
       smoothX = rawX;
       smoothY = rawY;
@@ -760,7 +722,6 @@
     modeBadge.innerText = gesture;
     currentCursor = { x: smoothX, y: smoothY, mode: gesture };
 
-    // A. FIST HOLD -> PURGE CANVAS
     if (gesture === 'FIST') {
       if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
       if (fistHoldStart === 0) fistHoldStart = now;
@@ -777,7 +738,6 @@
       fistProgress = 0;
     }
 
-    // B. THREE FINGERS -> CYCLE 3D HOLOGRAM ITEM
     if (gesture === 'THREE_FINGER') {
       if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
       if (!threeFingerTriggered) {
@@ -789,7 +749,6 @@
       threeFingerTriggered = false;
     }
 
-    // C. TWO FINGERS -> HOVER + HORIZONTAL SWIPE TO SWITCH COLOR
     if (gesture === 'TWO_FINGER') {
       if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
       autoRotate = true;
@@ -808,12 +767,10 @@
       swipeStartX = null;
     }
 
-    // D. ONE FINGER -> SILKY 3D LASER DRAW
     if (gesture === 'DRAW') {
       autoRotate = false;
       const curHex = COLORS[colorIdx].hex;
 
-      // Sub-sample midpoint for smooth Catmull-Rom curve interpolation
       const midX = (prevSmoothX + smoothX) * 0.5;
       const midY = (prevSmoothY + smoothY) * 0.5;
       const ptMid = unprojectTo3D(midX, midY);
@@ -829,7 +786,6 @@
       return;
     }
 
-    // E. OPEN PALM -> PLASMA ERASER
     if (gesture === 'ERASE') {
       if (activeStroke) { strokes3D.push(activeStroke); activeStroke = null; }
       const palmX = (1 - lm[9].x) * W;
@@ -853,9 +809,6 @@
     autoRotate = true;
   }
 
-  // =========================================================================
-  // DECOUPLED 60FPS HARDWARE RENDER LOOP (Eliminates 10 FPS Lag Completely!)
-  // =========================================================================
   let frameCounter = 0;
   let lastFpsStamp = performance.now();
 
@@ -867,7 +820,6 @@
       lastFpsStamp = now;
     }
 
-    // 1. Background Layer (Mirrored Live Video + Subtle Holo Grid)
     camCtx.fillStyle = '#02050E';
     camCtx.fillRect(0, 0, W, H);
 
@@ -880,7 +832,6 @@
       camCtx.restore();
     }
 
-    // Lightweight Grid
     camCtx.strokeStyle = 'rgba(0, 240, 255, 0.06)';
     camCtx.lineWidth = 1;
     camCtx.beginPath();
@@ -888,7 +839,6 @@
     for (let y = 0; y < H; y += 60) { camCtx.moveTo(0, y); camCtx.lineTo(W, y); }
     camCtx.stroke();
 
-    // 2. 3D Hologram & Smooth Spline Strokes Layer
     hCtx.clearRect(0, 0, W, H);
 
     if (autoRotate && !activeStroke) {
@@ -909,7 +859,6 @@
       hCtx.lineCap = 'round';
       hCtx.lineJoin = 'round';
 
-      // Build Smooth Quadratic Bezier Path
       hCtx.beginPath();
       let p0 = project3D(pts[0].x, pts[0].y, pts[0].z);
       hCtx.moveTo(p0.x, p0.y);
@@ -924,18 +873,15 @@
       const pLast = project3D(pts[pts.length - 1].x, pts[pts.length - 1].y, pts[pts.length - 1].z);
       hCtx.lineTo(pLast.x, pLast.y);
 
-      // Outer Plasma Aura
       hCtx.strokeStyle = st.color + '4D';
       hCtx.lineWidth = 14;
       hCtx.stroke();
 
-      // Inner Laser Core
       hCtx.strokeStyle = '#FFFFFF';
       hCtx.lineWidth = 3.5;
       hCtx.stroke();
     }
 
-    // 3. Invisible-Hand Laser Cursor & Sparks Layer (ZERO Hand Skeleton Lines!)
     fCtx.clearRect(0, 0, W, H);
 
     sparks = sparks.filter(sp => sp.life > 0.06);
@@ -955,7 +901,6 @@
       const curHex = COLORS[colorIdx].hex;
 
       if (mode === 'DRAW') {
-        // Pure Glowing Laser Tip (Invisible Hand!)
         fCtx.beginPath();
         fCtx.arc(x, y, 7, 0, Math.PI * 2);
         fCtx.fillStyle = '#FFFFFF';
@@ -975,14 +920,12 @@
         fCtx.fillStyle = 'rgba(255, 42, 109, 0.14)';
         fCtx.fill();
       } else if (mode === 'FIST' && fistProgress > 0) {
-        // Radial Purge Charge Ring
         fCtx.beginPath();
         fCtx.arc(x, y, 36, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fistProgress);
         fCtx.strokeStyle = '#FF2A6D';
         fCtx.lineWidth = 5;
         fCtx.stroke();
       } else {
-        // Minimal Floating Reticle for Hover / 2-Finger / 3-Finger
         fCtx.beginPath();
         fCtx.arc(x, y, 12, rotY * 2, rotY * 2 + Math.PI * 1.3);
         fCtx.strokeStyle = curHex;
@@ -994,9 +937,6 @@
     requestAnimationFrame(render60FpsLoop);
   }
 
-  // =========================================================================
-  // 8 VOLUMETRIC 3D HOLOGRAM ITEMS GENERATOR
-  // =========================================================================
   function render3DItem(type, color, t) {
     hCtx.strokeStyle = color;
     hCtx.lineWidth = 2;
@@ -1086,41 +1026,73 @@
     }
   }
 
-  // Boot AI Vision + Start Decoupled 60FPS Render Engine
-  async function bootSystem() {
+  // INSTANT PRE-LOAD & SHADER WARM-UP ENGINE
+  let handsEngine = null;
+  let aiReady = false;
+
+  async function preloadAIModel() {
     const btn = document.getElementById('btnStart');
-    btn.innerText = 'INITIALIZING 60FPS CORE...';
+    btn.innerText = 'LOADING AI VISION (PLEASE WAIT)...';
     btn.disabled = true;
 
     try {
-      const hands = new Hands({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+      handsEngine = new Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
       });
 
-      hands.setOptions({
+      handsEngine.setOptions({
         maxNumHands: 2,
-        modelComplexity: 0, // Ultra-fast neural lite model for zero-lag mobile/tablet
-        minDetectionConfidence: 0.62,
-        minTrackingConfidence: 0.58
+        modelComplexity: 0,
+        minDetectionConfidence: 0.60,
+        minTrackingConfidence: 0.55
       });
 
-      hands.onResults(onHandResults);
+      handsEngine.onResults(onHandResults);
 
-      // Fast 480x270 inference stream keeps AI latency under 18ms
+      // Warm-up dummy frame to compile GPU shaders BEFORE camera opens
+      const dummyCanvas = document.createElement('canvas');
+      dummyCanvas.width = 64;
+      dummyCanvas.height = 64;
+      await handsEngine.send({ image: dummyCanvas });
+
+      aiReady = true;
+      btn.innerText = 'ACTIVATE SPATIAL ENGINE (READY ✔)';
+      btn.disabled = false;
+      btn.style.background = 'linear-gradient(135deg, #059669, #10B981)';
+    } catch (err) {
+      btn.innerText = 'NETWORK SLOW - TAP TO RETRY';
+      btn.disabled = false;
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', preloadAIModel);
+
+  async function bootSystem() {
+    if (!aiReady) {
+      await preloadAIModel();
+    }
+
+    const btn = document.getElementById('btnStart');
+    btn.innerText = 'STARTING CAMERA...';
+    btn.disabled = true;
+
+    try {
       const camera = new Camera(videoEl, {
         onFrame: async () => {
-          await hands.send({ image: videoEl });
+          if (handsEngine) {
+            await handsEngine.send({ image: videoEl });
+          }
         },
-        width: 480,
-        height: 270
+        width: 320,
+        height: 180
       });
 
       await camera.start();
       document.getElementById('bootSplash').style.display = 'none';
       requestAnimationFrame(render60FpsLoop);
     } catch (e) {
-      alert('Camera access failed. Run over HTTPS (GitHub Pages) and allow camera permissions.');
-      btn.innerText = 'RETRY';
+      alert('Camera permission denied. Please allow camera access in Chrome.');
+      btn.innerText = 'RETRY CAMERA';
       btn.disabled = false;
     }
   }
