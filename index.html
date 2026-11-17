@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RAMMS GROUPS // 3D SPATIAL AIR CANVAS OS (OFFLINE CORE)</title>
+  <title>RAMMS GROUPS // 3D SPATIAL AIR CANVAS OS</title>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#02050B">
+
+  <!-- Online MediaPipe Hands Vision Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
 
   <style>
     :root {
@@ -67,7 +70,6 @@
     #drawCanvas { z-index: 3; }
     #fxCanvas   { z-index: 4; pointer-events: none; }
 
-    /* Top Executive Command Bar */
     .top-strip {
       position: absolute;
       top: 10px;
@@ -95,8 +97,8 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 10px var(--emerald);
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
     }
 
     .org-title {
@@ -106,9 +108,7 @@
       color: var(--text-main);
     }
 
-    .org-title span {
-      color: var(--cyan);
-    }
+    .org-title span { color: var(--cyan); }
 
     .org-sub {
       font-size: 9px;
@@ -144,7 +144,6 @@
       color: var(--emerald);
     }
 
-    /* Mid-Air Notification */
     #airToast {
       position: absolute;
       top: 60px;
@@ -164,11 +163,8 @@
       transition: opacity 0.15s ease;
     }
 
-    #airToast.visible {
-      opacity: 1;
-    }
+    #airToast.visible { opacity: 1; }
 
-    /* Left Color Dock */
     .left-dock {
       position: absolute;
       left: 10px;
@@ -198,7 +194,6 @@
       box-shadow: 0 0 10px currentColor;
     }
 
-    /* Right 3D Models Dock */
     .right-dock {
       position: absolute;
       right: 10px;
@@ -240,7 +235,6 @@
       color: #FFF;
     }
 
-    /* Bottom Mode & Controls Bar */
     .bottom-strip {
       position: absolute;
       bottom: 10px;
@@ -258,28 +252,15 @@
       border-radius: 10px;
     }
 
-    .mode-pills {
+    .gesture-hints {
       display: flex;
-      gap: 6px;
+      gap: 10px;
       flex-wrap: wrap;
-    }
-
-    .mode-btn {
-      padding: 6px 10px;
-      border-radius: 6px;
       font-size: 10px;
-      font-weight: 800;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(56, 189, 248, 0.25);
       color: var(--text-dim);
-      cursor: pointer;
     }
 
-    .mode-btn.active {
-      background: rgba(16, 185, 129, 0.22);
-      border-color: var(--emerald);
-      color: #FFF;
-    }
+    .gesture-hints strong { color: var(--cyan); }
 
     .ctrl-btns {
       display: flex;
@@ -303,7 +284,6 @@
       background: rgba(244, 63, 94, 0.14);
     }
 
-    /* Splash Screen */
     #introScreen {
       position: fixed;
       inset: 0;
@@ -337,16 +317,14 @@
       margin-bottom: 8px;
     }
 
-    .main-heading span {
-      color: var(--cyan);
-    }
+    .main-heading span { color: var(--cyan); }
 
     .sub-heading {
       max-width: 540px;
       font-size: 12px;
       color: var(--text-dim);
       line-height: 1.5;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
 
     .engage-btn {
@@ -355,14 +333,15 @@
       font-size: 14px;
       font-weight: 900;
       letter-spacing: 1.5px;
-      background: linear-gradient(135deg, #059669, #10B981);
+      background: linear-gradient(135deg, #0284C7, #2563EB);
       color: #FFF;
-      border: 1px solid var(--emerald);
-      box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+      border: 1px solid var(--cyan);
+      box-shadow: 0 6px 25px rgba(56, 189, 248, 0.4);
       cursor: pointer;
     }
 
     @media (max-width: 680px) {
+      .gesture-hints { display: none; }
       .left-dock { left: 6px; padding: 7px 5px; }
       .right-dock { right: 6px; padding: 7px 5px; }
       .color-dot { width: 19px; height: 19px; }
@@ -372,17 +351,15 @@
 </head>
 <body>
 
-  <!-- PRESENTATION SPLASH -->
   <div id="introScreen">
     <div class="presenter-badge">RAMMS GROUPS PRESENTS</div>
-    <h1 class="main-heading">OFFLINE <span>3D</span> SPATIAL AIR CANVAS</h1>
+    <h1 class="main-heading">ONLINE <span>3D</span> AIR CANVAS OS</h1>
     <p class="sub-heading">
-      100% Zero-Internet Optical Hand &amp; Laser Tracking Engine. Boots in 0.1 Seconds with Zero External Server Lag.
+      Real-Time 21-Point Hand Gesture Studio. Make sure Camera Permission is Allowed in Chrome.
     </p>
-    <button id="btnLaunch" class="engage-btn" onclick="launchOfflineSpatialOS()">LAUNCH INSTANT 3D STUDIO</button>
+    <button id="btnLaunch" class="engage-btn" onclick="startOnline3D()">START CAMERA &amp; 3D AI</button>
   </div>
 
-  <!-- MAIN WORKSPACE -->
   <div id="viewport">
     <video id="webcamFeed" playsinline autoplay muted></video>
 
@@ -393,24 +370,22 @@
 
     <div id="airToast">BEAM: ELECTRIC CYAN</div>
 
-    <!-- TOP HUD -->
     <header class="top-strip">
       <div class="brand-section">
         <div class="status-pulse" id="ledDot"></div>
         <div>
-          <div class="org-title"><span>RAMMS GROUPS</span> // OFFLINE 3D OS</div>
-          <div id="subTelemetry" class="org-sub">100% OFFLINE OPTICAL VISION ACTIVE</div>
+          <div class="org-title"><span>RAMMS GROUPS</span> // 3D SPATIAL OS</div>
+          <div id="subTelemetry" class="org-sub">CONNECTING CAMERA...</div>
         </div>
       </div>
 
       <div class="telemetry-pills">
-        <span id="statePill" class="pill green">OFFLINE READY</span>
+        <span id="statePill" class="pill green">INIT</span>
         <span id="modelPill" class="pill gold">3D: DRAW ONLY</span>
         <span id="fpsPill" class="pill">60 FPS</span>
       </div>
     </header>
 
-    <!-- LEFT COLOR DOCK -->
     <aside class="left-dock" id="colorPalette">
       <div class="color-dot active" style="background:#38BDF8; color:#38BDF8;" onclick="setColorIdx(0)"></div>
       <div class="color-dot" style="background:#F59E0B; color:#F59E0B;" onclick="setColorIdx(1)"></div>
@@ -420,7 +395,6 @@
       <div class="color-dot" style="background:#FFFFFF; color:#FFFFFF;" onclick="setColorIdx(5)"></div>
     </aside>
 
-    <!-- RIGHT 3D MODELS DOCK -->
     <aside class="right-dock" id="modelDock">
       <div class="dock-caption">3D ITEMS</div>
       <button class="holo-btn active" onclick="setModelIdx(0)">DRAW ONLY</button>
@@ -433,17 +407,18 @@
       <button class="holo-btn" onclick="setModelIdx(7)">3D GALAXY</button>
     </aside>
 
-    <!-- BOTTOM CONTROLS -->
     <footer class="bottom-strip">
-      <div class="mode-pills">
-        <button id="mDraw" class="mode-btn active" onclick="setActionMode('DRAW')">☝️ AIR DRAW</button>
-        <button id="mHover" class="mode-btn" onclick="setActionMode('HOVER')">✌️ LIFT PEN</button>
-        <button id="mRotate" class="mode-btn" onclick="setActionMode('ROTATE')">🔄 3D ROTATE</button>
-        <button id="mErase" class="mode-btn" onclick="setActionMode('ERASE')">🖐️ ERASER</button>
+      <div class="gesture-hints">
+        <span>☝️ <strong>1 FINGER:</strong> DRAW</span>
+        <span>✌️ <strong>2 FINGERS SWIPE:</strong> COLOR</span>
+        <span>🤟 <strong>3 FINGERS:</strong> 3D ITEM</span>
+        <span>🙌 <strong>2 HANDS:</strong> ROTATE/ZOOM</span>
+        <span>🖐️ <strong>PALM:</strong> ERASE</span>
+        <span>✊ <strong>FIST:</strong> CLEAR</span>
       </div>
 
       <div class="ctrl-btns">
-        <button class="cmd-btn" onclick="toggleCamBg()">CAM: ON</button>
+        <button class="cmd-btn" onclick="retryCamera()">CAM RETRY</button>
         <button class="cmd-btn" onclick="undoLastStroke()">UNDO</button>
         <button class="cmd-btn danger" onclick="clearEverything()">CLEAR</button>
       </div>
@@ -451,14 +426,6 @@
   </div>
 
 <script>
-  /**
-   * RAMMS GROUPS // 100% OFFLINE ZERO-DEPENDENCY 3D AIR CANVAS OS
-   * Why this NEVER hangs on "LOADING AI":
-   * - Zero external internet downloads (No MediaPipe / WASM / CDN blocking!).
-   * - Built-in Pure-JS Optical Fingertip & Skin-Peak Vision Tracker runs locally in < 2ms per frame.
-   * - Works 100% offline in airplane mode or weak school Wi-Fi!
-   */
-
   const videoEl    = document.getElementById('webcamFeed');
   const bgCanvas   = document.getElementById('bgCanvas');
   const bgCtx      = bgCanvas.getContext('2d', { alpha: false });
@@ -468,12 +435,6 @@
   const dCtx       = drawCanvas.getContext('2d');
   const fxCanvas   = document.getElementById('fxCanvas');
   const fCtx       = fxCanvas.getContext('2d');
-
-  // Fast 160x90 Offscreen Optical Sensor Grid (Zero CPU Hang)
-  const sensorCanvas = document.createElement('canvas');
-  sensorCanvas.width = 160;
-  sensorCanvas.height = 90;
-  const sCtx = sensorCanvas.getContext('2d', { willReadFrequently: true });
 
   const statePill    = document.getElementById('statePill');
   const modelPill    = document.getElementById('modelPill');
@@ -518,78 +479,45 @@
 
   let activeColorIdx = 0;
   let activeModelIdx = 0;
-  let camVisible = true;
-  let actionMode = 'DRAW'; // 'DRAW' | 'HOVER' | 'ROTATE' | 'ERASE'
+  let rotY = 0, rotX = 0.25, holoZoom = 1.0, autoSpin3D = true;
 
-  let rotY = 0;
-  let rotX = 0.25;
-  let holoZoom = 1.0;
+  let prevHandsDist = null, prevMidX = null, prevMidY = null;
+  let vectorStrokes = [], currentStroke = null;
+  let smoothX = null, smoothY = null;
+  let confirmedGesture = 'NONE', candidateGesture = 'NONE', gestureHoldFrames = 0;
 
-  let vectorStrokes = [];
-  let currentStroke = null;
-
-  let smoothX = null;
-  let smoothY = null;
-  let prevRotX = null;
-  let prevRotY = null;
-
-  let cursorState = null;
-  let particles = [];
-  let cameraActive = false;
+  let swipeAnchorX = null, lastColorTime = 0, threeFingerLock = false;
+  let fistStartMs = 0, fistCharge = 0;
+  let cursorState = null, particles = [], handsEngine = null, visionLoopStarted = false;
 
   let toastTimeout = null;
   function notifyAir(label) {
     airToast.innerText = label;
     airToast.classList.add('visible');
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => airToast.classList.remove('visible'), 1100);
+    toastTimeout = setTimeout(() => airToast.classList.remove('visible'), 1000);
   }
 
   function setColorIdx(idx) {
     activeColorIdx = (idx + PALETTE.length) % PALETTE.length;
-    document.querySelectorAll('#colorPalette .color-dot').forEach((el, i) => {
-      el.classList.toggle('active', i === activeColorIdx);
-    });
+    document.querySelectorAll('#colorPalette .color-dot').forEach((el, i) => el.classList.toggle('active', i === activeColorIdx));
     const hex = PALETTE[activeColorIdx].hex;
     document.getElementById('ledDot').style.background = hex;
-    document.getElementById('ledDot').style.boxShadow = `0 0 10px ${hex}`;
     notifyAir(`BEAM: ${PALETTE[activeColorIdx].name}`);
   }
 
   function setModelIdx(idx) {
     activeModelIdx = (idx + MODELS_3D.length) % MODELS_3D.length;
-    document.querySelectorAll('#modelDock .holo-btn').forEach((el, i) => {
-      el.classList.toggle('active', i === activeModelIdx);
-    });
+    document.querySelectorAll('#modelDock .holo-btn').forEach((el, i) => el.classList.toggle('active', i === activeModelIdx));
     modelPill.innerText = `3D: ${MODELS_3D[activeModelIdx]}`;
-    if (activeModelIdx !== 0 && actionMode === 'DRAW') {
-      setActionMode('ROTATE');
-    }
     notifyAir(`3D ITEM: ${MODELS_3D[activeModelIdx]}`);
-  }
-
-  function setActionMode(mode) {
-    actionMode = mode;
-    finalizeActiveStroke();
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    if (mode === 'DRAW') document.getElementById('mDraw').classList.add('active');
-    if (mode === 'HOVER') document.getElementById('mHover').classList.add('active');
-    if (mode === 'ROTATE') document.getElementById('mRotate').classList.add('active');
-    if (mode === 'ERASE') document.getElementById('mErase').classList.add('active');
-    statePill.innerText = mode;
-    notifyAir(`MODE: ${mode}`);
-  }
-
-  function toggleCamBg() {
-    camVisible = !camVisible;
-    event.target.innerText = camVisible ? 'CAM: ON' : 'CAM: OFF';
   }
 
   function undoLastStroke() {
     if (vectorStrokes.length > 0) {
       vectorStrokes.pop();
       redrawAllVectorStrokes();
-      notifyAir('UNDO STROKE');
+      notifyAir('UNDO');
     }
   }
 
@@ -600,13 +528,11 @@
     holoZoom = 1.0;
     rotX = 0.25;
     rotY = 0;
-    notifyAir('WORKSPACE CLEARED');
+    notifyAir('CLEARED');
   }
 
   function finalizeActiveStroke() {
-    if (currentStroke && currentStroke.points.length > 1) {
-      vectorStrokes.push(currentStroke);
-    }
+    if (currentStroke && currentStroke.points.length > 1) vectorStrokes.push(currentStroke);
     currentStroke = null;
   }
 
@@ -618,182 +544,182 @@
       if (pts.length < 2) continue;
       dCtx.lineCap = 'round';
       dCtx.lineJoin = 'round';
-
       dCtx.beginPath();
       dCtx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) {
-        dCtx.lineTo(pts[i].x, pts[i].y);
-      }
+      for (let i = 1; i < pts.length; i++) dCtx.lineTo(pts[i].x, pts[i].y);
       dCtx.strokeStyle = all[s].color + '55';
       dCtx.lineWidth = 10;
       dCtx.stroke();
-
       dCtx.strokeStyle = '#FFFFFF';
       dCtx.lineWidth = 3.2;
       dCtx.stroke();
     }
   }
 
-  // =========================================================================
-  // PURE-JS BUILT-IN OPTICAL FINGERTIP TRACKER (0ms Network Load!)
-  // =========================================================================
-  function trackFingertipOffline() {
-    if (!cameraActive || videoEl.readyState < 2) return null;
-
-    const sw = 160, sh = 90;
-    sCtx.drawImage(videoEl, 0, 0, sw, sh);
-    const frame = sCtx.getImageData(0, 0, sw, sh).data;
-
-    // Scan top-down for highest skin-tone or bright pointer tip
-    let bestY = sh;
-    let sumX = 0;
-    let count = 0;
-
-    for (let y = 6; y < sh - 6; y++) {
-      let rowHits = 0;
-      let rowX = 0;
-      for (let x = 10; x < sw - 10; x++) {
-        const idx = (y * sw + x) * 4;
-        const r = frame[idx];
-        const g = frame[idx + 1];
-        const b = frame[idx + 2];
-
-        // Human skin chrominance rule OR bright flashlight/white fingertip tip
-        const isSkin = (r > 85 && g > 40 && b > 20 && r > g && r > b && Math.abs(r - g) > 12);
-        const isBrightTip = (r > 225 && g > 225 && b > 225);
-
-        if (isSkin || isBrightTip) {
-          rowHits++;
-          rowX += (sw - 1 - x); // Mirror X
-        }
-      }
-
-      // Highest elevated finger cluster on screen
-      if (rowHits >= 2 && rowHits <= 28) {
-        bestY = y;
-        sumX = rowX / rowHits;
-        count = rowHits;
-        break;
-      }
-    }
-
-    if (count > 0) {
-      return {
-        x: (sumX / sw) * W,
-        y: (bestY / sh) * H
-      };
-    }
-    return null;
-  }
-
-  function processPointerInput(rawX, rawY) {
-    if (smoothX === null) {
-      smoothX = rawX;
-      smoothY = rawY;
-    } else {
-      const dist = Math.hypot(rawX - smoothX, rawY - smoothY);
-      if (dist > 110) {
-        finalizeActiveStroke();
-        smoothX = rawX;
-        smoothY = rawY;
-      } else {
-        smoothX += 0.42 * (rawX - smoothX);
-        smoothY += 0.42 * (rawY - smoothY);
-      }
-    }
-
-    cursorState = { x: smoothX, y: smoothY, mode: actionMode };
-    subTelemetry.innerText = `OPTICAL LOCK // X:${Math.round(smoothX)} Y:${Math.round(smoothY)}`;
-
-    if (actionMode === 'DRAW') {
-      const hex = PALETTE[activeColorIdx].hex;
-      if (!currentStroke) {
-        currentStroke = { color: hex, points: [{ x: smoothX, y: smoothY }] };
-      } else {
-        const lastPt = currentStroke.points[currentStroke.points.length - 1];
-        const seg = Math.hypot(smoothX - lastPt.x, smoothY - lastPt.y);
-        if (seg > 1.5 && seg < 95) {
-          currentStroke.points.push({ x: smoothX, y: smoothY });
-          dCtx.lineCap = 'round';
-          dCtx.lineJoin = 'round';
-
-          dCtx.strokeStyle = hex + '55';
-          dCtx.lineWidth = 10;
-          dCtx.beginPath();
-          dCtx.moveTo(lastPt.x, lastPt.y);
-          dCtx.lineTo(smoothX, smoothY);
-          dCtx.stroke();
-
-          dCtx.strokeStyle = '#FFFFFF';
-          dCtx.lineWidth = 3.2;
-          dCtx.beginPath();
-          dCtx.moveTo(lastPt.x, lastPt.y);
-          dCtx.lineTo(smoothX, smoothY);
-          dCtx.stroke();
-        }
-      }
-      addSparks(smoothX, smoothY, hex);
-    } else if (actionMode === 'ROTATE') {
-      if (prevRotX !== null) {
-        rotY += (smoothX - prevRotX) * 0.015;
-        rotX += (smoothY - prevRotY) * 0.015;
-      }
-      prevRotX = smoothX;
-      prevRotY = smoothY;
-    } else if (actionMode === 'ERASE') {
-      const before = vectorStrokes.length;
-      vectorStrokes = vectorStrokes.filter(st => !st.points.some(pt => Math.hypot(pt.x - smoothX, pt.y - smoothY) < 42));
-      if (vectorStrokes.length !== before) redrawAllVectorStrokes();
-    }
-  }
-
-  // Also allow direct finger touch/drag on screen as backup if camera lighting is pitch black!
-  let touchDragging = false;
-  fxCanvas.style.pointerEvents = 'auto';
-  fxCanvas.addEventListener('pointerdown', (e) => {
-    touchDragging = true;
-    smoothX = e.clientX;
-    smoothY = e.clientY;
-    prevRotX = e.clientX;
-    prevRotY = e.clientY;
-    processPointerInput(e.clientX, e.clientY);
-  });
-  fxCanvas.addEventListener('pointermove', (e) => {
-    if (!touchDragging) return;
-    processPointerInput(e.clientX, e.clientY);
-  });
-  fxCanvas.addEventListener('pointerup', () => {
-    touchDragging = false;
-    finalizeActiveStroke();
-    prevRotX = null;
-    prevRotY = null;
-  });
-
-  // 3D Projection Math
   function project3DTo2D(x, y, z) {
-    const cosY = Math.cos(rotY);
-    const sinY = Math.sin(rotY);
-    const rx = x * cosY - z * sinY;
-    const rz = z * cosY + x * sinY;
-
-    const cosX = Math.cos(rotX);
-    const sinX = Math.sin(rotX);
-    const ry = y * cosX - rz * sinX;
-    const finalZ = rz * cosX + y * sinX;
-
-    const fov = 620;
-    const scale = (fov / (fov + finalZ + 250)) * holoZoom;
-
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const rx = x * cosY - z * sinY, rz = z * cosY + x * sinY;
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const ry = y * cosX - rz * sinX, finalZ = rz * cosX + y * sinX;
+    const fov = 620, scale = (fov / (fov + finalZ + 250)) * holoZoom;
     return { x: W / 2 + rx * scale, y: H / 2 + ry * scale };
   }
 
   function addSparks(x, y, hex) {
     if (particles.length > 25) return;
     for (let i = 0; i < 2; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const spd = 1.2 + Math.random() * 2.2;
+      const a = Math.random() * Math.PI * 2, spd = 1.2 + Math.random() * 2.2;
       particles.push({ x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 1.0, hex });
     }
+  }
+
+  function classifyHandStrict(lm) {
+    const margin = 0.024;
+    const idxOpen = lm[8].y < (lm[6].y - margin);
+    const midOpen = lm[12].y < (lm[10].y - margin);
+    const rngOpen = lm[16].y < (lm[14].y - margin);
+    const pnkOpen = lm[20].y < (lm[18].y - margin);
+    const openCount = [idxOpen, midOpen, rngOpen, pnkOpen].filter(Boolean).length;
+
+    if (openCount === 0) return 'FIST';
+    if (openCount >= 4) return 'ERASE';
+    if (idxOpen && midOpen && rngOpen && !pnkOpen) return 'THREE';
+    if (idxOpen && midOpen && !rngOpen) return 'TWO';
+    if (idxOpen && !midOpen && !rngOpen && !pnkOpen) return 'DRAW';
+    return 'HOVER';
+  }
+
+  function handleHandResults(results) {
+    const hands = results.multiHandLandmarks || [];
+    const now = performance.now();
+
+    if (hands.length === 0) {
+      finalizeActiveStroke();
+      smoothX = null; smoothY = null; prevHandsDist = null;
+      fistStartMs = 0; fistCharge = 0; threeFingerLock = false;
+      confirmedGesture = 'NONE'; cursorState = null; autoSpin3D = true;
+      statePill.innerText = 'SCANNING';
+      subTelemetry.innerText = 'AI ONLINE // SHOW HAND TO CAMERA';
+      return;
+    }
+
+    if (hands.length === 2) {
+      finalizeActiveStroke();
+      autoSpin3D = false;
+      statePill.innerText = '3D ROTATE/ZOOM';
+
+      const h1x = (1 - hands[0][9].x) * W, h1y = hands[0][9].y * H;
+      const h2x = (1 - hands[1][9].x) * W, h2y = hands[1][9].y * H;
+      const dist = Math.hypot(h2x - h1x, h2y - h1y);
+      const midX = (h1x + h2x) / 2, midY = (h1y + h2y) / 2;
+
+      if (prevHandsDist !== null) {
+        const ratio = dist / prevHandsDist;
+        if (Math.abs(ratio - 1) > 0.008) holoZoom = Math.max(0.4, Math.min(2.6, holoZoom * ratio));
+        rotY += (midX - prevMidX) * 0.018;
+        rotX += (midY - prevMidY) * 0.018;
+      }
+
+      prevHandsDist = dist; prevMidX = midX; prevMidY = midY;
+      cursorState = { x: midX, y: midY, mode: 'TWO_HAND' };
+      subTelemetry.innerText = `ROT-Y:${Math.round((rotY * 180) / Math.PI)}° ZOOM:${holoZoom.toFixed(2)}x`;
+      return;
+    }
+
+    prevHandsDist = null;
+    const lm = hands[0];
+    const rx = (1 - lm[8].x) * W, ry = lm[8].y * H;
+
+    if (smoothX === null) {
+      smoothX = rx; smoothY = ry;
+    } else {
+      const jumpDist = Math.hypot(rx - smoothX, ry - smoothY);
+      if (jumpDist > 90) {
+        finalizeActiveStroke();
+        smoothX = rx; smoothY = ry;
+      } else {
+        const alpha = jumpDist > 25 ? 0.72 : 0.45;
+        smoothX += alpha * (rx - smoothX);
+        smoothY += alpha * (ry - smoothY);
+      }
+    }
+
+    const rawGesture = classifyHandStrict(lm);
+    if (rawGesture === candidateGesture) {
+      gestureHoldFrames++;
+      if (gestureHoldFrames >= 2) confirmedGesture = rawGesture;
+    } else {
+      candidateGesture = rawGesture;
+      gestureHoldFrames = 1;
+    }
+
+    statePill.innerText = confirmedGesture;
+    cursorState = { x: smoothX, y: smoothY, mode: confirmedGesture };
+
+    if (confirmedGesture === 'FIST') {
+      finalizeActiveStroke();
+      if (fistStartMs === 0) fistStartMs = now;
+      fistCharge = Math.min(1, (now - fistStartMs) / 950);
+      if (fistCharge >= 1) { clearEverything(); fistStartMs = 0; fistCharge = 0; }
+      return;
+    } else { fistStartMs = 0; fistCharge = 0; }
+
+    if (confirmedGesture === 'THREE') {
+      finalizeActiveStroke();
+      if (!threeFingerLock) { threeFingerLock = true; setModelIdx(activeModelIdx + 1); }
+      return;
+    } else { threeFingerLock = false; }
+
+    if (confirmedGesture === 'TWO') {
+      finalizeActiveStroke();
+      autoSpin3D = true;
+      if (swipeAnchorX === null) swipeAnchorX = smoothX;
+      else if (now - lastColorTime > 550) {
+        const diffX = smoothX - swipeAnchorX;
+        if (Math.abs(diffX) > 85) {
+          lastColorTime = now; swipeAnchorX = smoothX;
+          setColorIdx(diffX > 0 ? activeColorIdx + 1 : activeColorIdx - 1);
+        }
+      }
+      return;
+    } else { swipeAnchorX = null; }
+
+    if (confirmedGesture === 'DRAW') {
+      const hex = PALETTE[activeColorIdx].hex;
+      if (!currentStroke) {
+        currentStroke = { color: hex, points: [{ x: smoothX, y: smoothY }] };
+      } else {
+        const lastPt = currentStroke.points[currentStroke.points.length - 1];
+        const segDist = Math.hypot(smoothX - lastPt.x, smoothY - lastPt.y);
+        if (segDist > 85) {
+          finalizeActiveStroke();
+          currentStroke = { color: hex, points: [{ x: smoothX, y: smoothY }] };
+        } else if (segDist > 1.5) {
+          currentStroke.points.push({ x: smoothX, y: smoothY });
+          dCtx.lineCap = 'round'; dCtx.lineJoin = 'round';
+          dCtx.strokeStyle = hex + '55'; dCtx.lineWidth = 10;
+          dCtx.beginPath(); dCtx.moveTo(lastPt.x, lastPt.y); dCtx.lineTo(smoothX, smoothY); dCtx.stroke();
+          dCtx.strokeStyle = '#FFFFFF'; dCtx.lineWidth = 3.2;
+          dCtx.beginPath(); dCtx.moveTo(lastPt.x, lastPt.y); dCtx.lineTo(smoothX, smoothY); dCtx.stroke();
+        }
+      }
+      addSparks(smoothX, smoothY, hex);
+      subTelemetry.innerText = `LASER ACTIVE // X:${Math.round(smoothX)} Y:${Math.round(smoothY)}`;
+      return;
+    }
+
+    if (confirmedGesture === 'ERASE') {
+      finalizeActiveStroke();
+      const px = (1 - lm[9].x) * W, py = lm[9].y * H;
+      cursorState = { x: px, y: py, mode: 'ERASE' };
+      const before = vectorStrokes.length;
+      vectorStrokes = vectorStrokes.filter(st => !st.points.some(pt => Math.hypot(pt.x - px, pt.y - py) < 42));
+      if (vectorStrokes.length !== before) redrawAllVectorStrokes();
+      return;
+    }
+
+    finalizeActiveStroke();
+    autoSpin3D = true;
   }
 
   function render3DModel(type, hex, timeSec) {
@@ -805,9 +731,7 @@
       const v = [[-s,-s,-s],[s,-s,-s],[s,s,-s],[-s,s,-s],[-s,-s,s],[s,-s,s],[s,s,s],[-s,s,s]];
       const e = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
       const p = v.map(pt => project3DTo2D(pt[0], pt[1], pt[2]));
-      hCtx.beginPath();
-      e.forEach(([a, b]) => { hCtx.moveTo(p[a].x, p[a].y); hCtx.lineTo(p[b].x, p[b].y); });
-      hCtx.stroke();
+      hCtx.beginPath(); e.forEach(([a, b]) => { hCtx.moveTo(p[a].x, p[a].y); hCtx.lineTo(p[b].x, p[b].y); }); hCtx.stroke();
     } else if (type === '3D CORE') {
       for (let r = 0; r < 3; r++) {
         hCtx.beginPath();
@@ -828,21 +752,17 @@
         const p2 = project3DTo2D(Math.cos(ang + Math.PI) * 85, y, Math.sin(ang + Math.PI) * 85);
         hCtx.beginPath(); hCtx.moveTo(p1.x, p1.y); hCtx.lineTo(p2.x, p2.y); hCtx.stroke();
         hCtx.fillStyle = '#F59E0B';
-        hCtx.fillRect(p1.x - 3, p1.y - 3, 6, 6);
-        hCtx.fillRect(p2.x - 3, p2.y - 3, 6, 6);
+        hCtx.fillRect(p1.x - 3, p1.y - 3, 6, 6); hCtx.fillRect(p2.x - 3, p2.y - 3, 6, 6);
       }
     } else if (type === '3D PYRAMID') {
       const s = 130;
       const v = [[0,-s,0],[-s,s,-s],[s,s,-s],[s,s,s],[-s,s,s]];
       const e = [[0,1],[0,2],[0,3],[0,4],[1,2],[2,3],[3,4],[4,1]];
       const p = v.map(pt => project3DTo2D(pt[0], pt[1], pt[2]));
-      hCtx.beginPath();
-      e.forEach(([a, b]) => { hCtx.moveTo(p[a].x, p[a].y); hCtx.lineTo(p[b].x, p[b].y); });
-      hCtx.stroke();
+      hCtx.beginPath(); e.forEach(([a, b]) => { hCtx.moveTo(p[a].x, p[a].y); hCtx.lineTo(p[b].x, p[b].y); }); hCtx.stroke();
     } else if (type === '3D SPHERE') {
       for (let lat = -60; lat <= 60; lat += 30) {
-        const rad = Math.cos((lat * Math.PI) / 180) * 125;
-        const y = Math.sin((lat * Math.PI) / 180) * 125;
+        const rad = Math.cos((lat * Math.PI) / 180) * 125, y = Math.sin((lat * Math.PI) / 180) * 125;
         hCtx.beginPath();
         for (let a = 0; a <= Math.PI * 2 + 0.2; a += 0.25) {
           const p = project3DTo2D(Math.cos(a) * rad, y, Math.sin(a) * rad);
@@ -855,9 +775,7 @@
       for (let u = 0; u < Math.PI * 2; u += 0.4) {
         hCtx.beginPath();
         for (let v = 0; v <= Math.PI * 2 + 0.3; v += 0.42) {
-          const x = (R + r * Math.cos(v)) * Math.cos(u);
-          const y = r * Math.sin(v);
-          const z = (R + r * Math.cos(v)) * Math.sin(u);
+          const x = (R + r * Math.cos(v)) * Math.cos(u), y = r * Math.sin(v), z = (R + r * Math.cos(v)) * Math.sin(u);
           const p = project3DTo2D(x, y, z);
           if (v === 0) hCtx.moveTo(p.x, p.y); else hCtx.lineTo(p.x, p.y);
         }
@@ -873,23 +791,20 @@
     }
   }
 
-  let fpsFrames = 0;
-  let fpsLastCheck = performance.now();
+  let fpsFrames = 0, fpsLastCheck = performance.now();
 
   function renderDisplayFrame(now) {
     fpsFrames++;
     if (now - fpsLastCheck >= 500) {
-      const realFps = Math.round((fpsFrames * 1000) / (now - fpsLastCheck));
-      fpsPill.innerText = `${realFps} FPS`;
+      fpsPill.innerText = `${Math.round((fpsFrames * 1000) / (now - fpsLastCheck))} FPS`;
       fpsFrames = 0;
       fpsLastCheck = now;
     }
 
-    // 1. Background Video + Grid
     bgCtx.fillStyle = '#02050B';
     bgCtx.fillRect(0, 0, W, H);
 
-    if (camVisible && cameraActive && videoEl.readyState >= 2) {
+    if (videoEl.readyState >= 2) {
       bgCtx.save();
       bgCtx.translate(W, 0);
       bgCtx.scale(-1, 1);
@@ -898,91 +813,100 @@
       bgCtx.restore();
     }
 
-    bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.06)';
+    bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
     bgCtx.lineWidth = 1;
     bgCtx.beginPath();
     for (let x = 0; x < W; x += 70) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, H); }
     for (let y = 0; y < H; y += 70) { bgCtx.moveTo(0, y); bgCtx.lineTo(W, y); }
     bgCtx.stroke();
 
-    // 2. Run Instant Offline Fingertip Tracker (if not touch dragging)
-    if (!touchDragging && cameraActive) {
-      const hit = trackFingertipOffline();
-      if (hit) {
-        processPointerInput(hit.x, hit.y);
-      } else {
-        finalizeActiveStroke();
-        smoothX = null;
-        smoothY = null;
-        prevRotX = null;
-        prevRotY = null;
-        cursorState = null;
-      }
-    }
-
-    // 3. 3D Hologram Layer
     hCtx.clearRect(0, 0, W, H);
-    if (actionMode !== 'ROTATE' || !cursorState) {
-      rotY += 0.012;
+    if (autoSpin3D) rotY += 0.012;
+    if (MODELS_3D[activeModelIdx] !== 'DRAW ONLY') {
+      render3DModel(MODELS_3D[activeModelIdx], PALETTE[activeColorIdx].hex, now * 0.001);
     }
 
-    const current3DModel = MODELS_3D[activeModelIdx];
-    if (current3DModel !== 'DRAW ONLY') {
-      render3DModel(current3DModel, PALETTE[activeColorIdx].hex, now * 0.001);
-    }
-
-    // 4. Laser Cursor & Sparks
     fCtx.clearRect(0, 0, W, H);
     particles = particles.filter(p => p.life > 0.08);
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
-      fCtx.fillStyle = p.hex;
-      fCtx.globalAlpha = p.life;
+      fCtx.fillStyle = p.hex; fCtx.globalAlpha = p.life;
       fCtx.fillRect(p.x, p.y, 3, 3);
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life *= 0.85;
+      p.x += p.vx; p.y += p.vy; p.life *= 0.85;
     }
     fCtx.globalAlpha = 1.0;
 
     if (cursorState) {
       const { x, y, mode } = cursorState;
       const hex = PALETTE[activeColorIdx].hex;
-
-      fCtx.beginPath();
-      fCtx.arc(x, y, mode === 'ERASE' ? 38 : 12, 0, Math.PI * 2);
-      fCtx.strokeStyle = mode === 'ERASE' ? '#F43F5E' : hex;
-      fCtx.lineWidth = 2.5;
-      fCtx.stroke();
-
-      fCtx.beginPath();
-      fCtx.arc(x, y, 5, 0, Math.PI * 2);
-      fCtx.fillStyle = '#FFFFFF';
-      fCtx.fill();
+      if (mode === 'DRAW') {
+        fCtx.beginPath(); fCtx.arc(x, y, 6, 0, Math.PI * 2); fCtx.fillStyle = '#FFF'; fCtx.fill();
+        fCtx.beginPath(); fCtx.arc(x, y, 14, 0, Math.PI * 2); fCtx.strokeStyle = hex; fCtx.lineWidth = 2; fCtx.stroke();
+      } else if (mode === 'ERASE') {
+        fCtx.beginPath(); fCtx.arc(x, y, 42, 0, Math.PI * 2); fCtx.strokeStyle = '#F43F5E'; fCtx.lineWidth = 2.5; fCtx.stroke();
+      } else if (mode === 'FIST' && fistCharge > 0) {
+        fCtx.beginPath(); fCtx.arc(x, y, 36, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fistCharge); fCtx.strokeStyle = '#F43F5E'; fCtx.lineWidth = 5; fCtx.stroke();
+      } else {
+        fCtx.beginPath(); fCtx.arc(x, y, 11, rotY * 2, rotY * 2 + Math.PI * 1.3); fCtx.strokeStyle = hex; fCtx.lineWidth = 2; fCtx.stroke();
+      }
     }
 
     requestAnimationFrame(renderDisplayFrame);
   }
 
-  // Instant Zero-Network Launch
-  async function launchOfflineSpatialOS() {
-    document.getElementById('introScreen').style.display = 'none';
-    requestAnimationFrame(renderDisplayFrame);
-
+  async function retryCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' },
+        video: { facingMode: 'user', width: { ideal: 320 }, height: { ideal: 240 } },
         audio: false
       });
       videoEl.srcObject = stream;
       await videoEl.play();
-      cameraActive = true;
-      statePill.innerText = 'ACTIVE (OFFLINE)';
-      subTelemetry.innerText = 'RAISE ONE FINGER ABOVE HEAD/CHEST TO DRAW';
+      subTelemetry.innerText = 'CAMERA ACTIVE // LOADING AI HANDS...';
+      initVisionLoop();
     } catch (err) {
-      statePill.innerText = 'TOUCH MODE';
-      subTelemetry.innerText = 'CAMERA BLOCKED — TOUCH SCREEN TO DRAW';
+      statePill.innerText = 'ALLOW CAM!';
+      subTelemetry.innerText = 'TAP LOCK ICON IN URL BAR -> ALLOW CAMERA -> TAP CAM RETRY';
     }
+  }
+
+  function initVisionLoop() {
+    if (visionLoopStarted) return;
+    if (typeof Hands === 'undefined') {
+      subTelemetry.innerText = 'NO INTERNET FOR AI MODEL — CHECK WIFI/DATA';
+      return;
+    }
+
+    handsEngine = new Hands({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
+    });
+
+    handsEngine.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 0,
+      minDetectionConfidence: 0.58,
+      minTrackingConfidence: 0.55
+    });
+
+    handsEngine.onResults(handleHandResults);
+    visionLoopStarted = true;
+
+    let busy = false;
+    async function step() {
+      if (!busy && videoEl.readyState >= 2) {
+        busy = true;
+        try { await handsEngine.send({ image: videoEl }); } catch (e) {}
+        busy = false;
+      }
+      setTimeout(step, 25);
+    }
+    step();
+  }
+
+  async function startOnline3D() {
+    document.getElementById('introScreen').style.display = 'none';
+    requestAnimationFrame(renderDisplayFrame);
+    await retryCamera();
   }
 </script>
 </body>
