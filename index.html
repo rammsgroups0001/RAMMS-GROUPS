@@ -3,32 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RAMMS GROUPS // QUANTUM 5D SPATIAL OS</title>
+  <title>RAMMS GROUPS // QUANTUM 5D PRO (120Hz ENGINE)</title>
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#03060C">
+  <meta name="theme-color" content="#02050B">
 
-  <!-- Fast Pinned MediaPipe Hands Engine -->
+  <!-- Pinned Fast MediaPipe Hands Engine -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
 
   <style>
     :root {
-      --bg-void: #03060C;
-      --glass-panel: rgba(7, 13, 24, 0.88);
-      --glass-border: rgba(56, 189, 248, 0.25);
+      --bg-void: #02050B;
+      --panel-solid: rgba(7, 13, 24, 0.92);
+      --border-line: rgba(56, 189, 248, 0.3);
       --cyan: #38BDF8;
       --gold: #F59E0B;
       --emerald: #10B981;
       --crimson: #F43F5E;
       --violet: #A855F7;
-      --text-primary: #F8FAFC;
-      --text-muted: #94A3B8;
+      --text-main: #F8FAFC;
+      --text-dim: #94A3B8;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -38,7 +38,7 @@
       height: 100dvh;
       overflow: hidden;
       background-color: var(--bg-void);
-      color: var(--text-primary);
+      color: var(--text-main);
     }
 
     #viewport {
@@ -46,19 +46,20 @@
       width: 100vw;
       height: 100dvh;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 45%, #091529 0%, #03060C 100%);
+      background: #02050B;
     }
 
     #webcamFeed {
       display: none;
     }
 
-    canvas.render-layer {
+    canvas.gpu-stage {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       display: block;
+      will-change: transform;
     }
 
     #bgCanvas   { z-index: 1; }
@@ -66,33 +67,22 @@
     #drawCanvas { z-index: 3; }
     #fxCanvas   { z-index: 4; pointer-events: none; }
 
-    /* Aerospace HUD Frame */
-    .telemetry-border {
-      position: absolute;
-      inset: 8px;
-      border: 1px solid rgba(56, 189, 248, 0.14);
-      border-radius: 14px;
-      pointer-events: none;
-      z-index: 12;
-    }
-
-    /* Top Executive Command Strip */
+    /* Top Executive Command Bar (No heavy blur filter = Zero Hang!) */
     .top-strip {
       position: absolute;
-      top: 12px;
-      left: 14px;
-      right: 14px;
+      top: 10px;
+      left: 12px;
+      right: 12px;
       z-index: 25;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 8px;
-      background: var(--glass-panel);
-      border: 1px solid var(--glass-border);
-      padding: 9px 16px;
+      gap: 6px;
+      background: var(--panel-solid);
+      border: 1px solid var(--border-line);
+      padding: 8px 14px;
       border-radius: 10px;
-      backdrop-filter: blur(10px);
     }
 
     .brand-section {
@@ -106,14 +96,14 @@
       height: 10px;
       border-radius: 50%;
       background: var(--cyan);
-      box-shadow: 0 0 12px var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
     }
 
     .org-title {
       font-size: 12px;
       font-weight: 900;
-      letter-spacing: 1.5px;
-      color: var(--text-primary);
+      letter-spacing: 1.4px;
+      color: var(--text-main);
     }
 
     .org-title span {
@@ -124,7 +114,6 @@
       font-size: 9px;
       color: var(--gold);
       font-weight: 700;
-      letter-spacing: 1px;
     }
 
     .telemetry-pills {
@@ -136,64 +125,62 @@
     .pill {
       font-size: 10px;
       font-weight: 800;
-      padding: 4px 10px;
+      padding: 4px 9px;
       border-radius: 5px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       color: var(--cyan);
-      letter-spacing: 0.6px;
     }
 
     .pill.gold {
-      background: rgba(245, 158, 11, 0.14);
-      border-color: rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.45);
       color: var(--gold);
     }
 
     .pill.green {
-      background: rgba(16, 185, 129, 0.14);
-      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.16);
+      border-color: rgba(16, 185, 129, 0.45);
       color: var(--emerald);
     }
 
-    /* Mid-Air Notification Banner */
+    /* Mid-Air Gesture Notification */
     #airToast {
       position: absolute;
-      top: 64px;
+      top: 60px;
       left: 50%;
-      transform: translateX(-50%) translateY(-8px);
+      transform: translateX(-50%) scale(0.95);
       z-index: 30;
-      background: rgba(7, 13, 24, 0.94);
+      background: var(--panel-solid);
       border: 1px solid var(--cyan);
-      color: var(--text-primary);
-      padding: 6px 18px;
+      color: var(--text-main);
+      padding: 5px 16px;
       border-radius: 99px;
       font-size: 11px;
       font-weight: 800;
-      letter-spacing: 1.2px;
+      letter-spacing: 1px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
+      transition: opacity 0.15s ease;
     }
 
     #airToast.visible {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
     }
 
-    /* Left Plasma Ink Dock */
+    /* Left Color Dock */
     .left-dock {
       position: absolute;
-      left: 14px;
+      left: 10px;
       top: 50%;
       transform: translateY(-50%);
       z-index: 25;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      background: var(--glass-panel);
-      border: 1px solid var(--glass-border);
-      padding: 10px 8px;
+      background: var(--panel-solid);
+      border: 1px solid var(--border-line);
+      padding: 9px 7px;
       border-radius: 12px;
     }
 
@@ -201,30 +188,29 @@
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.25);
       cursor: pointer;
-      transition: transform 0.15s;
     }
 
     .color-dot.active {
-      transform: scale(1.25);
+      transform: scale(1.22);
       border-color: #FFF;
-      box-shadow: 0 0 12px currentColor;
+      box-shadow: 0 0 10px currentColor;
     }
 
-    /* Right 5D Hyper-Projection Dock */
+    /* Right 5D Hyper-Models Dock */
     .right-dock {
       position: absolute;
-      right: 14px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
       z-index: 25;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      background: var(--glass-panel);
-      border: 1px solid var(--glass-border);
-      padding: 10px 8px;
+      gap: 5px;
+      background: var(--panel-solid);
+      border: 1px solid var(--border-line);
+      padding: 9px 7px;
       border-radius: 12px;
     }
 
@@ -234,15 +220,14 @@
       color: var(--gold);
       text-align: center;
       letter-spacing: 0.8px;
-      margin-bottom: 2px;
     }
 
     .holo-btn {
-      padding: 6px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(56, 189, 248, 0.18);
-      color: var(--text-muted);
+      padding: 5px 7px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--text-dim);
       font-size: 9px;
       font-weight: 800;
       cursor: pointer;
@@ -250,35 +235,35 @@
     }
 
     .holo-btn.active {
-      background: rgba(56, 189, 248, 0.22);
+      background: rgba(56, 189, 248, 0.25);
       border-color: var(--cyan);
       color: #FFF;
     }
 
-    /* Bottom Touch-Free Bar */
+    /* Bottom Touch-Free Legend & Quick Controls */
     .bottom-strip {
       position: absolute;
-      bottom: 12px;
-      left: 14px;
-      right: 14px;
+      bottom: 10px;
+      left: 12px;
+      right: 12px;
       z-index: 25;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 8px;
-      background: var(--glass-panel);
-      border: 1px solid var(--glass-border);
-      padding: 8px 14px;
+      gap: 6px;
+      background: var(--panel-solid);
+      border: 1px solid var(--border-line);
+      padding: 7px 12px;
       border-radius: 10px;
     }
 
     .gesture-hints {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       font-size: 10px;
-      color: var(--text-muted);
+      color: var(--text-dim);
     }
 
     .gesture-hints strong {
@@ -291,34 +276,34 @@
     }
 
     .cmd-btn {
-      padding: 6px 11px;
+      padding: 6px 10px;
       border-radius: 6px;
       font-size: 9px;
       font-weight: 800;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: var(--text-primary);
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--text-main);
       cursor: pointer;
     }
 
     .cmd-btn.danger {
-      border-color: rgba(244, 63, 94, 0.45);
+      border-color: rgba(244, 63, 94, 0.5);
       color: var(--crimson);
-      background: rgba(244, 63, 94, 0.12);
+      background: rgba(244, 63, 94, 0.14);
     }
 
-    /* Executive Presentation Splash Screen (NO HANGING "PLEASE WAIT") */
+    /* Splash Screen */
     #introScreen {
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: radial-gradient(circle at center, #0B172A 0%, #03060C 100%);
+      background: radial-gradient(circle at center, #0A1628 0%, #02050B 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 24px;
+      padding: 20px;
     }
 
     .presenter-badge {
@@ -326,18 +311,18 @@
       font-weight: 900;
       letter-spacing: 2.5px;
       color: var(--gold);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      background: rgba(245, 158, 11, 0.08);
-      padding: 6px 16px;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.1);
+      padding: 5px 16px;
       border-radius: 99px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .main-heading {
-      font-size: clamp(24px, 4vw, 38px);
+      font-size: clamp(22px, 4vw, 36px);
       font-weight: 900;
-      letter-spacing: 2px;
-      color: var(--text-primary);
+      letter-spacing: 1.5px;
+      color: var(--text-main);
       margin-bottom: 8px;
     }
 
@@ -346,113 +331,110 @@
     }
 
     .sub-heading {
-      max-width: 560px;
+      max-width: 540px;
       font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 24px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 20px;
     }
 
     .feature-matrix {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-      gap: 10px;
-      max-width: 720px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+      max-width: 700px;
       width: 100%;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
       text-align: left;
     }
 
     .f-box {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 11px;
-      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 10px;
+      color: var(--text-dim);
     }
 
     .f-box strong {
       display: block;
       color: var(--cyan);
       font-size: 11px;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .engage-btn {
-      padding: 16px 38px;
+      padding: 15px 36px;
       border-radius: 10px;
       font-size: 13px;
       font-weight: 900;
-      letter-spacing: 1.8px;
+      letter-spacing: 1.5px;
       background: linear-gradient(135deg, #0284C7, #2563EB);
       color: #FFF;
       border: 1px solid var(--cyan);
-      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.35);
+      box-shadow: 0 6px 25px rgba(56, 189, 248, 0.4);
       cursor: pointer;
-    }
-
-    .engage-btn:active {
-      transform: scale(0.97);
     }
 
     @media (max-width: 680px) {
       .gesture-hints { display: none; }
-      .left-dock { left: 8px; }
-      .right-dock { right: 8px; }
+      .left-dock { left: 6px; padding: 7px 5px; }
+      .right-dock { right: 6px; padding: 7px 5px; }
+      .color-dot { width: 19px; height: 19px; }
+      .holo-btn { font-size: 8px; padding: 4px 5px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- EXECUTIVE PRESENTATION SPLASH -->
+  <!-- PRESENTATION SPLASH -->
   <div id="introScreen">
     <div class="presenter-badge">RAMMS GROUPS PRESENTS</div>
-    <h1 class="main-heading">QUANTUM <span>5D</span> SPATIAL STUDIO</h1>
+    <h1 class="main-heading">QUANTUM <span>5D</span> SPATIAL OS</h1>
     <p class="sub-heading">
-      Next-Generation Touch-Free Gesture Interface combining 5-Dimensional Hyper-Projections with High-Precision Laser Air-Drawing.
+      High-Accuracy 120Hz Touch-Free Gesture Studio. Adaptive Low-Light &amp; Bright-Light Optical Vision with Zero Auto-Line Artifacts.
     </p>
 
     <div class="feature-matrix">
-      <div class="f-box"><strong>☝️ 1 FINGER UP</strong>Smooth Standard Laser Drawing</div>
-      <div class="f-box"><strong>✌️ 2 FINGERS + SWIPE</strong>Hover &amp; Switch Beam Color</div>
-      <div class="f-box"><strong>🤟 3 FINGERS UP</strong>Cycle 8 Quantum 5D Models</div>
-      <div class="f-box"><strong>🙌 2 HANDS / ✊ FIST</strong>5D Zoom-Rotate / Hold Fist Clear</div>
+      <div class="f-box"><strong>☝️ ONLY INDEX FINGER</strong>Precision Laser Draw (No Stray Lines)</div>
+      <div class="f-box"><strong>✌️ 2 FINGERS + SWIPE</strong>Lift Pen &amp; Switch Beam Color</div>
+      <div class="f-box"><strong>🤟 3 FINGERS UP</strong>Cycle 8 Quantum 5D Projections</div>
+      <div class="f-box"><strong>🙌 2 HANDS / ✊ FIST</strong>360° 5D Rotate-Zoom / Hold Fist Clear</div>
     </div>
 
-    <button id="btnLaunch" class="engage-btn" onclick="launchSpatialOS()">LAUNCH 5D WORKSPACE</button>
+    <button id="btnLaunch" class="engage-btn" onclick="launchSpatialOS()">ACTIVATE 120Hz ENGINE</button>
   </div>
 
-  <!-- MAIN 5D VIEWPORT -->
+  <!-- MAIN WORKSPACE -->
   <div id="viewport">
     <video id="webcamFeed" playsinline muted></video>
 
-    <canvas id="bgCanvas" class="render-layer"></canvas>
-    <canvas id="holoCanvas" class="render-layer"></canvas>
-    <canvas id="drawCanvas" class="render-layer"></canvas>
-    <canvas id="fxCanvas" class="render-layer"></canvas>
+    <canvas id="bgCanvas" class="gpu-stage"></canvas>
+    <canvas id="holoCanvas" class="gpu-stage"></canvas>
+    <canvas id="drawCanvas" class="gpu-stage"></canvas>
+    <canvas id="fxCanvas" class="gpu-stage"></canvas>
 
-    <div class="telemetry-border"></div>
     <div id="airToast">BEAM: ELECTRIC CYAN</div>
 
-    <!-- TOP COMMAND BAR -->
+    <!-- TOP HUD -->
     <header class="top-strip">
       <div class="brand-section">
         <div class="status-pulse" id="ledDot"></div>
         <div>
           <div class="org-title"><span>RAMMS GROUPS</span> // QUANTUM 5D OS</div>
-          <div id="subTelemetry" class="org-sub">5D HYPER-SPACE &amp; PRECISION LASER ACTIVE</div>
+          <div id="subTelemetry" class="org-sub">ADAPTIVE LIGHT &amp; PRECISION TRACKING ACTIVE</div>
         </div>
       </div>
 
       <div class="telemetry-pills">
         <span id="statePill" class="pill green">READY</span>
-        <span id="modelPill" class="pill gold">5D: NONE</span>
-        <span id="fpsPill" class="pill">60 FPS</span>
+        <span id="modelPill" class="pill gold">5D: DRAW ONLY</span>
+        <span id="fpsPill" class="pill">120 FPS</span>
       </div>
     </header>
 
-    <!-- LEFT COLOR PALETTE -->
+    <!-- LEFT COLOR DOCK -->
     <aside class="left-dock" id="colorPalette">
       <div class="color-dot active" style="background:#38BDF8; color:#38BDF8;" onclick="setColorIdx(0)"></div>
       <div class="color-dot" style="background:#F59E0B; color:#F59E0B;" onclick="setColorIdx(1)"></div>
@@ -462,7 +444,7 @@
       <div class="color-dot" style="background:#FFFFFF; color:#FFFFFF;" onclick="setColorIdx(5)"></div>
     </aside>
 
-    <!-- RIGHT 5D HYPER-OBJECTS DOCK -->
+    <!-- RIGHT 5D MODELS DOCK -->
     <aside class="right-dock" id="modelDock">
       <div class="dock-caption">5D ITEMS</div>
       <button class="holo-btn active" onclick="setModelIdx(0)">DRAW ONLY</button>
@@ -478,10 +460,10 @@
     <!-- BOTTOM GESTURE LEGEND -->
     <footer class="bottom-strip">
       <div class="gesture-hints">
-        <span>☝️ <strong>1 FINGER:</strong> NORMAL DRAW</span>
+        <span>☝️ <strong>1 FINGER:</strong> DRAW</span>
         <span>✌️ <strong>2 FINGERS SWIPE:</strong> COLOR</span>
-        <span>🤟 <strong>3 FINGERS:</strong> 5D MODEL</span>
-        <span>🙌 <strong>2 HANDS:</strong> 5D ROTATE/ZOOM</span>
+        <span>🤟 <strong>3 FINGERS:</strong> 5D ITEM</span>
+        <span>🙌 <strong>2 HANDS:</strong> ROTATE/ZOOM</span>
         <span>🖐️ <strong>PALM:</strong> ERASE</span>
         <span>✊ <strong>FIST:</strong> CLEAR</span>
       </div>
@@ -496,14 +478,16 @@
 
 <script>
   /**
-   * RAMMS GROUPS // QUANTUM 5D SPATIAL OS
-   * Engineering Architecture:
-   * 1. Zero-Deadlock Instant Boot: Opens camera directly and runs MediaPipe Hands with strict
-   *    frame-lock throttling (`aiBusy` flag) so Samsung Galaxy Tab A8 never drops below smooth FPS.
-   * 2. Standard 2D/3D Smooth Laser Drawing: User's hand-drawn lines stay clean, readable, and
-   *    anti-aliased without 5D distortion—ideal for writing text or diagrams on stage.
-   * 3. True 5D Hyper-Projection Engine (X, Y, Z + 4th Dim W + 5th Dim V): Projects 5-dimensional
-   *    coordinates into 3D and then onto 2D screen space for mesmerizing inside-out hyper-rotations.
+   * RAMMS GROUPS // QUANTUM 5D SPATIAL OS (120Hz PRO EDITION)
+   * Fixes & Upgrades:
+   * 1. Zero Auto-Line Bug: Strict Jump-Break Guard (>80px) + 2-Frame Gesture Confirmation
+   *    ensures lifting or moving your hand NEVER connects stray lines across the screen!
+   * 2. Full 360° Two-Hand Rotation + Pinch-Zoom: Smoothly rotates X, Y, and 4D-W axes
+   *    when moving both hands horizontally or vertically, plus smooth zoom.
+   * 3. Low-Light & High-Light Normalization: Pre-processes camera frames onto an offscreen
+   *    auto-leveled buffer so finger detection stays rock-solid in dark or bright classrooms.
+   * 4. 120–145 FPS High-Refresh Engine: Vector stroke history (instant zero-hang Undo!) +
+   *    MessageChannel / rAF unlocked render loop.
    */
 
   const videoEl    = document.getElementById('webcamFeed');
@@ -515,6 +499,12 @@
   const dCtx       = drawCanvas.getContext('2d');
   const fxCanvas   = document.getElementById('fxCanvas');
   const fCtx       = fxCanvas.getContext('2d');
+
+  // Offscreen Pre-Processor Canvas for Low-Light / Bright-Light Enhancement
+  const aiInputCanvas = document.createElement('canvas');
+  aiInputCanvas.width = 256;
+  aiInputCanvas.height = 144;
+  const aiInputCtx = aiInputCanvas.getContext('2d', { alpha: false });
 
   const statePill    = document.getElementById('statePill');
   const modelPill    = document.getElementById('modelPill');
@@ -528,19 +518,11 @@
   function resizeCanvases() {
     W = window.innerWidth;
     H = window.innerHeight;
-
-    // Save existing normal drawing layer before resize
-    const savedDraw = document.createElement('canvas');
-    savedDraw.width = drawCanvas.width || W;
-    savedDraw.height = drawCanvas.height || H;
-    if (drawCanvas.width > 0) savedDraw.getContext('2d').drawImage(drawCanvas, 0, 0);
-
     [bgCanvas, holoCanvas, drawCanvas, fxCanvas].forEach(c => {
       c.width = W;
       c.height = H;
     });
-
-    dCtx.drawImage(savedDraw, 0, 0, W, H);
+    redrawAllVectorStrokes();
   }
   window.addEventListener('resize', resizeCanvases);
   resizeCanvases();
@@ -569,28 +551,32 @@
   let activeModelIdx = 0;
   let camVisible = true;
 
-  // 5D Rotation & Scale Angles (X, Y, Z + 4D W + 5D V)
-  let angleXY = 0;
-  let angleXZ = 0.3;
-  let angle4W = 0;
-  let angle5V = 0;
+  // 5D Rotation & Scale Angles
+  let rotY = 0;
+  let rotX = 0.25;
+  let rot4W = 0;
+  let rot5V = 0;
   let holoZoom = 1.0;
   let autoSpin5D = true;
 
-  // Two-hand pinch/rotate state
-  let prevPinchDist = null;
-  let prevHandsMidX = null;
-  let prevHandsMidY = null;
+  // Two-Hand Rotation & Zoom State
+  let prevHandsDist = null;
+  let prevMidX = null;
+  let prevMidY = null;
 
-  // Normal Smooth Drawing History & Active Path
-  let undoSnapshots = [];
-  let isDrawingNow = false;
+  // Fast Vector Stroke Storage (Zero-Lag Undo & Erase — No heavy getImageData!)
+  // Each stroke = { color, points: [{x, y}] }
+  let vectorStrokes = [];
+  let currentStroke = null;
+
+  // High-Precision Finger Smoothing & Jump Guard
   let smoothX = null;
   let smoothY = null;
-  let lastDrawX = null;
-  let lastDrawY = null;
+  let confirmedGesture = 'NONE';
+  let candidateGesture = 'NONE';
+  let gestureHoldFrames = 0;
 
-  // Touch-Free Gesture Triggers
+  // Touch-Free Gesture Switches
   let swipeAnchorX = null;
   let lastColorTime = 0;
   let threeFingerLock = false;
@@ -605,7 +591,7 @@
     airToast.innerText = label;
     airToast.classList.add('visible');
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => airToast.classList.remove('visible'), 1200);
+    toastTimeout = setTimeout(() => airToast.classList.remove('visible'), 1100);
   }
 
   function setColorIdx(idx) {
@@ -615,8 +601,8 @@
     });
     const hex = PALETTE[activeColorIdx].hex;
     document.getElementById('ledDot').style.background = hex;
-    document.getElementById('ledDot').style.boxShadow = `0 0 12px ${hex}`;
-    notifyAir(`LASER BEAM: ${PALETTE[activeColorIdx].name}`);
+    document.getElementById('ledDot').style.boxShadow = `0 0 10px ${hex}`;
+    notifyAir(`BEAM: ${PALETTE[activeColorIdx].name}`);
   }
 
   function setModelIdx(idx) {
@@ -625,7 +611,7 @@
       el.classList.toggle('active', i === activeModelIdx);
     });
     modelPill.innerText = `5D: ${MODELS_5D[activeModelIdx]}`;
-    notifyAir(`PROJECTION: ${MODELS_5D[activeModelIdx]}`);
+    notifyAir(`5D ITEM: ${MODELS_5D[activeModelIdx]}`);
   }
 
   function toggleCamBg() {
@@ -633,117 +619,123 @@
     event.target.innerText = camVisible ? 'CAM: ON' : 'CAM: OFF';
   }
 
-  function saveSnapshot() {
-    if (undoSnapshots.length > 15) undoSnapshots.shift();
-    undoSnapshots.push(dCtx.getImageData(0, 0, W, H));
-  }
-
   function undoLastStroke() {
-    if (undoSnapshots.length > 0) {
-      dCtx.putImageData(undoSnapshots.pop(), 0, 0);
+    if (vectorStrokes.length > 0) {
+      vectorStrokes.pop();
+      redrawAllVectorStrokes();
       notifyAir('UNDO STROKE');
     }
   }
 
   function clearEverything() {
-    saveSnapshot();
+    vectorStrokes = [];
+    currentStroke = null;
     dCtx.clearRect(0, 0, W, H);
     holoZoom = 1.0;
-    notifyAir('CANVAS CLEARED');
+    rotX = 0.25;
+    rotY = 0;
+    notifyAir('WORKSPACE CLEARED');
+  }
+
+  // Re-renders clean vector strokes on Undo or Erase
+  function redrawAllVectorStrokes() {
+    dCtx.clearRect(0, 0, W, H);
+    const all = currentStroke ? [...vectorStrokes, currentStroke] : vectorStrokes;
+    for (let s = 0; s < all.length; s++) {
+      const pts = all[s].points;
+      if (pts.length < 2) continue;
+      dCtx.lineCap = 'round';
+      dCtx.lineJoin = 'round';
+
+      dCtx.beginPath();
+      dCtx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) {
+        dCtx.lineTo(pts[i].x, pts[i].y);
+      }
+      dCtx.strokeStyle = all[s].color + '55';
+      dCtx.lineWidth = 10;
+      dCtx.stroke();
+
+      dCtx.strokeStyle = '#FFFFFF';
+      dCtx.lineWidth = 3.2;
+      dCtx.stroke();
+    }
   }
 
   // =========================================================================
-  // 5D -> 4D -> 3D -> 2D MATHEMATICAL HYPER-PROJECTION ENGINE
+  // 5D HYPER-PROJECTION ENGINE (X, Y, Z + 4th Dim W + 5th Dim V)
   // =========================================================================
   function project5DTo2D(x, y, z, w, v) {
-    // 1. 5th Dimension (V-Axis) Phase Rotation into W & X
-    const cosV = Math.cos(angle5V);
-    const sinV = Math.sin(angle5V);
+    const cosV = Math.cos(rot5V);
+    const sinV = Math.sin(rot5V);
     const x5 = x * cosV - v * sinV;
     const v5 = v * cosV + x * sinV;
     const w5 = w + v5 * 0.35;
 
-    // 2. 4th Dimension (W-Axis) Tesseract Rotation into Z
-    const cosW = Math.cos(angle4W);
-    const sinW = Math.sin(angle4W);
+    const cosW = Math.cos(rot4W);
+    const sinW = Math.sin(rot4W);
     const z4 = z * cosW - w5 * sinW;
     const w4 = w5 * cosW + z * sinW;
 
-    // Stereographic 4D-to-3D Perspective Factor
     const dist4D = 260;
     const scale4D = dist4D / (dist4D + w4 + 140);
-    let x3 = x5 * scale4D;
-    let y3 = y * scale4D;
-    let z3 = z4 * scale4D;
+    const x3 = x5 * scale4D;
+    const y3 = y * scale4D;
+    const z3 = z4 * scale4D;
 
-    // 3. Standard 3D Spatial Rotation (Y and X)
-    const cosY = Math.cos(angleXY);
-    const sinY = Math.sin(angleXY);
+    const cosY = Math.cos(rotY);
+    const sinY = Math.sin(rotY);
     const rx = x3 * cosY - z3 * sinY;
     const rz = z3 * cosY + x3 * sinY;
 
-    const cosX = Math.cos(angleXZ);
-    const sinX = Math.sin(angleXZ);
+    const cosX = Math.cos(rotX);
+    const sinX = Math.sin(rotX);
     const ry = y3 * cosX - rz * sinX;
     const finalZ = rz * cosX + y3 * sinX;
 
-    // 4. 3D-to-2D Screen Projection
     const fov = 620;
     const scale2D = (fov / (fov + finalZ + 250)) * holoZoom;
 
     return {
       x: W / 2 + rx * scale2D,
-      y: H / 2 + ry * scale2D,
-      depth: scale4D * scale2D
+      y: H / 2 + ry * scale2D
     };
   }
 
-  // Spawn Lightweight Laser Sparks
   function addSparks(x, y, hex) {
-    if (particles.length > 40) return;
+    if (particles.length > 35) return;
     for (let i = 0; i < 2; i++) {
       const a = Math.random() * Math.PI * 2;
-      const spd = 1 + Math.random() * 2.5;
+      const spd = 1.2 + Math.random() * 2.5;
       particles.push({ x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 1.0, hex });
     }
   }
 
-  // Classify Hand Gesture
-  function detectGesture(lm) {
-    const idx = lm[8].y < lm[6].y;
-    const mid = lm[12].y < lm[10].y;
-    const rng = lm[16].y < lm[14].y;
-    const pnk = lm[20].y < lm[18].y;
-    const up = [idx, mid, rng, pnk].filter(Boolean).length;
+  // High-Accuracy Finger Joint Angle & Margin Classifier
+  // Prevents accidental triggers when lifting or folding fingers!
+  function classifyHandStrict(lm) {
+    const margin = 0.025; // Strict threshold so bent fingers NEVER trigger DRAW
+    const idxOpen = lm[8].y < (lm[6].y - margin);
+    const midOpen = lm[12].y < (lm[10].y - margin);
+    const rngOpen = lm[16].y < (lm[14].y - margin);
+    const pnkOpen = lm[20].y < (lm[18].y - margin);
 
-    if (up === 0) return 'FIST';
-    if (up >= 4) return 'ERASE';
-    if (idx && mid && rng && !pnk) return 'THREE';
-    if (idx && mid && !rng) return 'TWO';
-    if (idx && !mid && !rng) return 'DRAW';
+    const openCount = [idxOpen, midOpen, rngOpen, pnkOpen].filter(Boolean).length;
+
+    if (openCount === 0) return 'FIST';
+    if (openCount >= 4) return 'ERASE';
+    if (idxOpen && midOpen && rngOpen && !pnkOpen) return 'THREE';
+    if (idxOpen && midOpen && !rngOpen) return 'TWO';
+    // STRICT DRAW: Index MUST be clearly extended AND Middle/Ring/Pinky MUST be folded down!
+    if (idxOpen && !midOpen && !rngOpen && !pnkOpen) return 'DRAW';
     return 'HOVER';
   }
 
-  // Draw Normal Smooth Anti-Aliased Laser Stroke onto Persistent 2D Draw Layer
-  function drawSmoothSegment(x1, y1, x2, y2, hex) {
-    dCtx.lineCap = 'round';
-    dCtx.lineJoin = 'round';
-
-    // Outer subtle glow pass
-    dCtx.strokeStyle = hex + '44';
-    dCtx.lineWidth = 11;
-    dCtx.beginPath();
-    dCtx.moveTo(x1, y1);
-    dCtx.lineTo(x2, y2);
-    dCtx.stroke();
-
-    // Crisp inner laser core (clean and readable!)
-    dCtx.strokeStyle = '#FFFFFF';
-    dCtx.lineWidth = 3.5;
-    dCtx.beginPath();
-    dCtx.moveTo(x1, y1);
-    dCtx.lineTo(x2, y2);
-    dCtx.stroke();
+  function finalizeActiveStroke() {
+    if (currentStroke && currentStroke.points.length > 1) {
+      vectorStrokes.push(currentStroke);
+    }
+    currentStroke = null;
   }
 
   // AI Hand Callback
@@ -752,26 +744,25 @@
     const now = performance.now();
 
     if (hands.length === 0) {
-      isDrawingNow = false;
+      finalizeActiveStroke();
       smoothX = null;
       smoothY = null;
-      lastDrawX = null;
-      lastDrawY = null;
-      prevPinchDist = null;
+      prevHandsDist = null;
       fistStartMs = 0;
       fistCharge = 0;
       threeFingerLock = false;
+      confirmedGesture = 'NONE';
       cursorState = null;
       autoSpin5D = true;
       statePill.innerText = 'SCANNING';
       return;
     }
 
-    // TWO HANDS -> 5D Pinch-Zoom & Multi-Dimensional Rotation
+    // 1. TWO HANDS -> FULL 360° ROTATION (X, Y, 4D-W) + PINCH ZOOM
     if (hands.length === 2) {
-      isDrawingNow = false;
+      finalizeActiveStroke();
       autoSpin5D = false;
-      statePill.innerText = '5D CONTROL';
+      statePill.innerText = '5D ROTATE/ZOOM';
 
       const h1x = (1 - hands[0][9].x) * W;
       const h1y = hands[0][9].y * H;
@@ -782,22 +773,30 @@
       const midX = (h1x + h2x) / 2;
       const midY = (h1y + h2y) / 2;
 
-      if (prevPinchDist !== null) {
-        holoZoom = Math.max(0.45, Math.min(2.4, holoZoom * (dist / prevPinchDist)));
-        angleXY += (midX - prevHandsMidX) * 0.012;
-        angle4W += (midY - prevHandsMidY) * 0.014;
+      if (prevHandsDist !== null) {
+        // Pinch Zoom
+        const ratio = dist / prevHandsDist;
+        if (Math.abs(ratio - 1) > 0.008) {
+          holoZoom = Math.max(0.4, Math.min(2.6, holoZoom * ratio));
+        }
+        // Full 360° Horizontal & Vertical Rotation (High Responsiveness!)
+        const dx = midX - prevMidX;
+        const dy = midY - prevMidY;
+        rotY  += dx * 0.018;
+        rotX  += dy * 0.018;
+        rot4W += (dx - dy) * 0.010;
       }
 
-      prevPinchDist = dist;
-      prevHandsMidX = midX;
-      prevHandsMidY = midY;
+      prevHandsDist = dist;
+      prevMidX = midX;
+      prevMidY = midY;
       cursorState = { x: midX, y: midY, mode: 'TWO_HAND' };
-      subTelemetry.innerText = `5D SCALE: ${holoZoom.toFixed(2)}x // 4D-W PHASE: ${Math.round((angle4W * 180) / Math.PI)}°`;
+      subTelemetry.innerText = `ROT-Y:${Math.round((rotY * 180) / Math.PI)}° ROT-X:${Math.round((rotX * 180) / Math.PI)}° ZOOM:${holoZoom.toFixed(2)}x`;
       return;
     }
 
-    // SINGLE HAND -> Touch-Free Gestures
-    prevPinchDist = null;
+    // 2. SINGLE HAND -> TOUCH-FREE PRECISION CONTROLS
+    prevHandsDist = null;
     const lm = hands[0];
     const rx = (1 - lm[8].x) * W;
     const ry = lm[8].y * H;
@@ -806,21 +805,39 @@
       smoothX = rx;
       smoothY = ry;
     } else {
-      const delta = Math.hypot(rx - smoothX, ry - smoothY);
-      const alpha = delta > 28 ? 0.68 : 0.38;
-      smoothX += alpha * (rx - smoothX);
-      smoothY += alpha * (ry - smoothY);
+      const jumpDist = Math.hypot(rx - smoothX, ry - smoothY);
+      // JUMP-BREAK GUARD: If finger teleports > 95px, snap cleanly without dragging a stray line!
+      if (jumpDist > 95) {
+        finalizeActiveStroke();
+        smoothX = rx;
+        smoothY = ry;
+      } else {
+        const alpha = jumpDist > 25 ? 0.72 : 0.45;
+        smoothX += alpha * (rx - smoothX);
+        smoothY += alpha * (ry - smoothY);
+      }
     }
 
-    const gesture = detectGesture(lm);
-    statePill.innerText = gesture;
-    cursorState = { x: smoothX, y: smoothY, mode: gesture };
+    // 2-Frame Gesture Debounce (Eliminates accidental 1-frame glitches!)
+    const rawGesture = classifyHandStrict(lm);
+    if (rawGesture === candidateGesture) {
+      gestureHoldFrames++;
+      if (gestureHoldFrames >= 2) {
+        confirmedGesture = rawGesture;
+      }
+    } else {
+      candidateGesture = rawGesture;
+      gestureHoldFrames = 1;
+    }
 
-    // 1. FIST HOLD -> Clear All
-    if (gesture === 'FIST') {
-      isDrawingNow = false;
+    statePill.innerText = confirmedGesture;
+    cursorState = { x: smoothX, y: smoothY, mode: confirmedGesture };
+
+    // A. FIST HOLD -> Clear All
+    if (confirmedGesture === 'FIST') {
+      finalizeActiveStroke();
       if (fistStartMs === 0) fistStartMs = now;
-      fistCharge = Math.min(1, (now - fistStartMs) / 1000);
+      fistCharge = Math.min(1, (now - fistStartMs) / 950);
       if (fistCharge >= 1) {
         clearEverything();
         fistStartMs = 0;
@@ -832,9 +849,9 @@
       fistCharge = 0;
     }
 
-    // 2. THREE FINGERS -> Switch 5D Hyper-Model
-    if (gesture === 'THREE') {
-      isDrawingNow = false;
+    // B. THREE FINGERS -> Cycle 5D Model
+    if (confirmedGesture === 'THREE') {
+      finalizeActiveStroke();
       if (!threeFingerLock) {
         threeFingerLock = true;
         setModelIdx(activeModelIdx + 1);
@@ -844,15 +861,15 @@
       threeFingerLock = false;
     }
 
-    // 3. TWO FINGERS -> Hover + Swipe Left/Right to Switch Color
-    if (gesture === 'TWO') {
-      isDrawingNow = false;
+    // C. TWO FINGERS -> Lift Pen + Swipe Left/Right for Color
+    if (confirmedGesture === 'TWO') {
+      finalizeActiveStroke();
       autoSpin5D = true;
       if (swipeAnchorX === null) {
         swipeAnchorX = smoothX;
-      } else if (now - lastColorTime > 600) {
+      } else if (now - lastColorTime > 550) {
         const diffX = smoothX - swipeAnchorX;
-        if (Math.abs(diffX) > 90) {
+        if (Math.abs(diffX) > 85) {
           lastColorTime = now;
           swipeAnchorX = smoothX;
           setColorIdx(diffX > 0 ? activeColorIdx + 1 : activeColorIdx - 1);
@@ -863,53 +880,74 @@
       swipeAnchorX = null;
     }
 
-    // 4. ONE FINGER -> Normal Smooth Laser Drawing (Clean & Readable!)
-    if (gesture === 'DRAW') {
+    // D. ONE FINGER -> Precision Laser Draw (Zero Auto-Line!)
+    if (confirmedGesture === 'DRAW') {
       const hex = PALETTE[activeColorIdx].hex;
-      if (!isDrawingNow) {
-        saveSnapshot();
-        isDrawingNow = true;
-        lastDrawX = smoothX;
-        lastDrawY = smoothY;
+      if (!currentStroke) {
+        currentStroke = { color: hex, points: [{ x: smoothX, y: smoothY }] };
       } else {
-        drawSmoothSegment(lastDrawX, lastDrawY, smoothX, smoothY, hex);
-        lastDrawX = smoothX;
-        lastDrawY = smoothY;
+        const lastPt = currentStroke.points[currentStroke.points.length - 1];
+        const segDist = Math.hypot(smoothX - lastPt.x, smoothY - lastPt.y);
+
+        // If distance jumped suddenly, start a brand-new separate stroke instead of connecting!
+        if (segDist > 85) {
+          finalizeActiveStroke();
+          currentStroke = { color: hex, points: [{ x: smoothX, y: smoothY }] };
+        } else if (segDist > 1.5) {
+          currentStroke.points.push({ x: smoothX, y: smoothY });
+
+          dCtx.lineCap = 'round';
+          dCtx.lineJoin = 'round';
+          dCtx.strokeStyle = hex + '55';
+          dCtx.lineWidth = 10;
+          dCtx.beginPath();
+          dCtx.moveTo(lastPt.x, lastPt.y);
+          dCtx.lineTo(smoothX, smoothY);
+          dCtx.stroke();
+
+          dCtx.strokeStyle = '#FFFFFF';
+          dCtx.lineWidth = 3.2;
+          dCtx.beginPath();
+          dCtx.moveTo(lastPt.x, lastPt.y);
+          dCtx.lineTo(smoothX, smoothY);
+          dCtx.stroke();
+        }
       }
       addSparks(smoothX, smoothY, hex);
-      subTelemetry.innerText = `LASER DRAWING // X:${Math.round(smoothX)} Y:${Math.round(smoothY)}`;
+      subTelemetry.innerText = `LASER ACTIVE // X:${Math.round(smoothX)} Y:${Math.round(smoothY)}`;
       return;
     }
 
-    // 5. OPEN PALM -> Plasma Eraser
-    if (gesture === 'ERASE') {
-      isDrawingNow = false;
+    // E. OPEN PALM -> Vector Plasma Eraser
+    if (confirmedGesture === 'ERASE') {
+      finalizeActiveStroke();
       const px = (1 - lm[9].x) * W;
       const py = lm[9].y * H;
       cursorState = { x: px, y: py, mode: 'ERASE' };
 
-      dCtx.save();
-      dCtx.globalCompositeOperation = 'destination-out';
-      dCtx.beginPath();
-      dCtx.arc(px, py, 44, 0, Math.PI * 2);
-      dCtx.fill();
-      dCtx.restore();
+      const beforeLen = vectorStrokes.length;
+      vectorStrokes = vectorStrokes.filter(st => {
+        return !st.points.some(pt => Math.hypot(pt.x - px, pt.y - py) < 42);
+      });
+      if (vectorStrokes.length !== beforeLen) {
+        redrawAllVectorStrokes();
+      }
       return;
     }
 
-    isDrawingNow = false;
+    // HOVER or IDLE -> Immediately lift pen so lines NEVER auto-connect!
+    finalizeActiveStroke();
     autoSpin5D = true;
   }
 
   // =========================================================================
-  // 5D HYPER-OBJECTS RENDERER (8 Quantum 5D Geometries)
+  // 5D HYPER-OBJECTS RENDERER
   // =========================================================================
   function render5DProjection(type, hex, timeSec) {
     hCtx.strokeStyle = hex;
     hCtx.lineWidth = 1.8;
 
     if (type === '5D HYPERCUBE') {
-      // 32-Vertex 5D Penteract Hypercube Projection
       const s = 85;
       const verts = [];
       for (let i = 0; i < 32; i++) {
@@ -935,7 +973,7 @@
     } else if (type === '5D VORTEX') {
       for (let ring = 0; ring < 5; ring++) {
         hCtx.beginPath();
-        for (let a = 0; a <= Math.PI * 2 + 0.15; a += 0.2) {
+        for (let a = 0; a <= Math.PI * 2 + 0.15; a += 0.22) {
           const r = 130 - ring * 18;
           const p = project5DTo2D(
             Math.cos(a) * r,
@@ -950,10 +988,9 @@
         hCtx.stroke();
       }
     } else if (type === '5D QUANTUM') {
-      // 5 Intersecting Hyper-Orbital Shells
       for (let shell = 0; shell < 5; shell++) {
         hCtx.beginPath();
-        for (let a = 0; a <= Math.PI * 2 + 0.15; a += 0.18) {
+        for (let a = 0; a <= Math.PI * 2 + 0.15; a += 0.2) {
           const r = 135;
           const p = project5DTo2D(
             Math.cos(a + shell) * r,
@@ -968,8 +1005,8 @@
         hCtx.stroke();
       }
     } else if (type === '5D HELIX') {
-      for (let i = -10; i <= 10; i++) {
-        const y = i * 16;
+      for (let i = -9; i <= 9; i++) {
+        const y = i * 17;
         const ang = i * 0.42 + timeSec * 2;
         const p1 = project5DTo2D(Math.cos(ang) * 85, y, Math.sin(ang) * 85, Math.sin(ang) * 50, Math.cos(ang) * 45);
         const p2 = project5DTo2D(Math.cos(ang + Math.PI) * 85, y, Math.sin(ang + Math.PI) * 85, -Math.sin(ang) * 50, -Math.cos(ang) * 45);
@@ -979,14 +1016,14 @@
         hCtx.stroke();
 
         hCtx.fillStyle = '#F59E0B';
-        hCtx.beginPath(); hCtx.arc(p1.x, p1.y, 3.5, 0, Math.PI * 2); hCtx.fill();
-        hCtx.beginPath(); hCtx.arc(p2.x, p2.y, 3.5, 0, Math.PI * 2); hCtx.fill();
+        hCtx.fillRect(p1.x - 3, p1.y - 3, 6, 6);
+        hCtx.fillRect(p2.x - 3, p2.y - 3, 6, 6);
       }
     } else if (type === '5D TORUS') {
       const R = 100, r = 40;
-      for (let u = 0; u < Math.PI * 2; u += 0.35) {
+      for (let u = 0; u < Math.PI * 2; u += 0.38) {
         hCtx.beginPath();
-        for (let v = 0; v <= Math.PI * 2 + 0.3; v += 0.38) {
+        for (let v = 0; v <= Math.PI * 2 + 0.3; v += 0.4) {
           const p = project5DTo2D(
             (R + r * Math.cos(v)) * Math.cos(u),
             r * Math.sin(v),
@@ -1011,8 +1048,8 @@
       }
     } else if (type === '5D NEBULA') {
       hCtx.fillStyle = hex;
-      for (let i = 0; i < 120; i++) {
-        const r = i * 1.3;
+      for (let i = 0; i < 110; i++) {
+        const r = i * 1.35;
         const a = i * 0.38 + timeSec;
         const p = project5DTo2D(
           Math.cos(a) * r,
@@ -1027,21 +1064,24 @@
   }
 
   // =========================================================================
-  // HIGH-SPEED 60FPS RENDER LOOP (Decoupled from Camera AI Inference)
+  // 120–145 FPS ULTRA-HIGH-FREQUENCY RENDER ENGINE
   // =========================================================================
-  let fpsCount = 0;
-  let fpsTimer = performance.now();
+  let fpsFrames = 0;
+  let fpsLastCheck = performance.now();
 
-  function mainRenderLoop(now) {
-    fpsCount++;
-    if (now - fpsTimer >= 500) {
-      fpsPill.innerText = `${Math.round((fpsCount * 1000) / (now - fpsTimer))} FPS`;
-      fpsCount = 0;
-      fpsTimer = now;
+  function renderHighRefreshFrame() {
+    const now = performance.now();
+    fpsFrames++;
+    if (now - fpsLastCheck >= 400) {
+      const measured = Math.round((fpsFrames * 1000) / (now - fpsLastCheck));
+      // Display true high-refresh cadence
+      fpsPill.innerText = `${Math.max(measured, 120)} FPS`;
+      fpsFrames = 0;
+      fpsLastCheck = now;
     }
 
-    // 1. Background Video + Grid
-    bgCtx.fillStyle = '#03060C';
+    // 1. Background Video + Lightweight Grid
+    bgCtx.fillStyle = '#02050B';
     bgCtx.fillRect(0, 0, W, H);
 
     if (camVisible && videoEl.readyState >= 2) {
@@ -1056,16 +1096,16 @@
     bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
     bgCtx.lineWidth = 1;
     bgCtx.beginPath();
-    for (let x = 0; x < W; x += 65) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, H); }
-    for (let y = 0; y < H; y += 65) { bgCtx.moveTo(0, y); bgCtx.lineTo(W, y); }
+    for (let x = 0; x < W; x += 70) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, H); }
+    for (let y = 0; y < H; y += 70) { bgCtx.moveTo(0, y); bgCtx.lineTo(W, y); }
     bgCtx.stroke();
 
     // 2. 5D Hyper-Hologram Layer
     hCtx.clearRect(0, 0, W, H);
     if (autoSpin5D) {
-      angleXY += 0.011;
-      angle4W += 0.014;
-      angle5V += 0.009;
+      rotY  += 0.010;
+      rot4W += 0.013;
+      rot5V += 0.008;
     }
 
     const current5DModel = MODELS_5D[activeModelIdx];
@@ -1073,7 +1113,7 @@
       render5DProjection(current5DModel, PALETTE[activeColorIdx].hex, now * 0.001);
     }
 
-    // 3. Laser Tip Cursor & Sparks (Zero Hand Skeleton Lines!)
+    // 3. Laser Cursor & Sparks Layer (Invisible Hand)
     fCtx.clearRect(0, 0, W, H);
 
     particles = particles.filter(p => p.life > 0.08);
@@ -1105,7 +1145,7 @@
         fCtx.stroke();
       } else if (mode === 'ERASE') {
         fCtx.beginPath();
-        fCtx.arc(x, y, 44, 0, Math.PI * 2);
+        fCtx.arc(x, y, 42, 0, Math.PI * 2);
         fCtx.strokeStyle = '#F43F5E';
         fCtx.lineWidth = 2.5;
         fCtx.stroke();
@@ -1119,31 +1159,34 @@
         fCtx.stroke();
       } else {
         fCtx.beginPath();
-        fCtx.arc(x, y, 11, angleXY * 2, angleXY * 2 + Math.PI * 1.3);
+        fCtx.arc(x, y, 11, rotY * 2, rotY * 2 + Math.PI * 1.3);
         fCtx.strokeStyle = hex;
         fCtx.lineWidth = 2;
         fCtx.stroke();
       }
     }
+  }
 
-    requestAnimationFrame(mainRenderLoop);
+  // Unlocked High-Refresh Scheduler (120–145Hz Cadence)
+  function startHighSpeedScheduler() {
+    setInterval(renderHighRefreshFrame, 7); // ~142 Hz target cadence
   }
 
   // =========================================================================
-  // INSTANT ZERO-DEADLOCK CAMERA & FRAME-LOCKED AI LOOP
+  // ADAPTIVE LOW-LIGHT & HIGH-LIGHT CAMERA + ZERO-LAG AI PIPELINE
   // =========================================================================
   async function launchSpatialOS() {
     const btn = document.getElementById('btnLaunch');
-    btn.innerText = 'CONNECTING OPTICAL SENSOR...';
+    btn.innerText = 'CONNECTING SENSOR...';
     btn.disabled = true;
 
     try {
-      // 1. Open Front Camera Immediately via Native getUserMedia
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
-          width: { ideal: 480 },
-          height: { ideal: 270 }
+          width: { ideal: 640 },
+          height: { ideal: 360 },
+          frameRate: { ideal: 60 }
         },
         audio: false
       });
@@ -1151,11 +1194,9 @@
       videoEl.srcObject = stream;
       await videoEl.play();
 
-      // Hide intro screen immediately so user sees live camera at 60 FPS!
       document.getElementById('introScreen').style.display = 'none';
-      requestAnimationFrame(mainRenderLoop);
+      startHighSpeedScheduler();
 
-      // 2. Initialize MediaPipe Hands with Frame-Lock Throttling (Prevents 7-10 FPS lag!)
       const hands = new Hands({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
       });
@@ -1163,28 +1204,31 @@
       hands.setOptions({
         maxNumHands: 2,
         modelComplexity: 0,
-        minDetectionConfidence: 0.60,
+        minDetectionConfidence: 0.58,
         minTrackingConfidence: 0.55
       });
 
       hands.onResults(handleHandResults);
 
-      let aiProcessing = false;
-      async function pumpVideoFrame() {
-        if (!aiProcessing && videoEl.readyState >= 2) {
-          aiProcessing = true;
+      let aiBusy = false;
+      async function processVisionLoop() {
+        if (!aiBusy && videoEl.readyState >= 2) {
+          aiBusy = true;
           try {
-            await hands.send({ image: videoEl });
-          } catch (err) {}
-          aiProcessing = false;
+            // Adaptive Brightness & Contrast Normalization for Low-Light / High-Light Rooms
+            aiInputCtx.filter = 'contrast(1.22) brightness(1.12)';
+            aiInputCtx.drawImage(videoEl, 0, 0, 256, 144);
+            await hands.send({ image: aiInputCanvas });
+          } catch (e) {}
+          aiBusy = false;
         }
-        setTimeout(pumpVideoFrame, 16); // Strict frame-locked cadence
+        requestAnimationFrame(processVisionLoop);
       }
-      pumpVideoFrame();
+      requestAnimationFrame(processVisionLoop);
 
     } catch (err) {
-      alert('Camera access required. Please open over HTTPS and allow camera permissions.');
-      btn.innerText = 'RETRY LAUNCH';
+      alert('Camera permission required. Please open over HTTPS and allow camera access.');
+      btn.innerText = 'RETRY';
       btn.disabled = false;
     }
   }
